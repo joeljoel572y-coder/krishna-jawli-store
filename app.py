@@ -1,6 +1,8 @@
 import os
 import json
 import time
+import secrets
+from datetime import datetime
 from functools import wraps
 from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
@@ -114,6 +116,15 @@ class Order(db.Model):
     delivery_date = db.Column(db.String(50), default="3-5 Business Days")
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
+class AdminSession(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    session_token = db.Column(db.String(64), unique=True, nullable=False)
+    device_name = db.Column(db.String(150), nullable=False)
+    ip_address = db.Column(db.String(50), nullable=False)
+    login_time = db.Column(db.String(50), nullable=False)
+    last_seen = db.Column(db.DateTime, default=datetime.utcnow)
+    is_active = db.Column(db.Boolean, default=True)
+
 def get_settings():
     setting = StoreSetting.query.first()
     if not setting:
@@ -193,8 +204,17 @@ def seed_initial_data():
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if not session.get('admin_logged_in'):
+        token = session.get('admin_token')
+        if not token:
             return redirect(url_for('admin_login'))
+            
+        admin_sess = AdminSession.query.filter_by(session_token=token, is_active=True).first()
+        if not admin_sess:
+            session.clear()
+            return redirect(url_for('admin_login'))
+            
+        admin_sess.last_seen = datetime.utcnow()
+        db.session.commit()
         return f(*args, **kwargs)
     return decorated_function
 
@@ -205,15 +225,31 @@ def admin_login():
         user = request.form.get('username')
         pwd = request.form.get('password')
         if user == ADMIN_USERNAME and pwd == ADMIN_PASSWORD:
+            token = secrets.token_hex(24)
+            session['admin_token'] = token
             session['admin_logged_in'] = True
             session['login_timestamp'] = time.time()
             session['login_time_str'] = time.strftime('%d-%b-%Y, %I:%M %p')
-            session['login_ip'] = request.remote_addr or '127.0.0.1'
+            
+            raw_ip = request.headers.get('X-Forwarded-For', request.remote_addr or '127.0.0.1')
+            clean_ip = raw_ip.split(',')[0].strip()
+            session['login_ip'] = clean_ip
 
             ua = request.headers.get('User-Agent', '')
             os_name = "Windows PC" if "Windows" in ua else ("macOS" if "Mac" in ua else ("Android" if "Android" in ua else ("iPhone" if "iPhone" in ua else "PC / Mobile")))
             browser_name = "Edge" if "Edg" in ua else ("Chrome" if "Chrome" in ua else ("Firefox" if "Firefox" in ua else ("Safari" if "Safari" in ua else "Browser")))
-            session['login_device'] = f"{os_name} • {browser_name}"
+            device_str = f"{os_name} • {browser_name}"
+            session['login_device'] = device_str
+
+            new_session = AdminSession(
+                session_token=token,
+                device_name=device_str,
+                ip_address=clean_ip,
+                login_time=session['login_time_str'],
+                is_active=True
+            )
+            db.session.add(new_session)
+            db.session.commit()
 
             return redirect(url_for('admin_dashboard'))
         else:
@@ -222,12 +258,27 @@ def admin_login():
 
 @app.route('/admin/logout')
 def admin_logout():
-    session.pop('admin_logged_in', None)
-    session.pop('login_timestamp', None)
-    session.pop('login_time_str', None)
-    session.pop('login_device', None)
-    session.pop('login_ip', None)
+    token = session.get('admin_token')
+    if token:
+        sess = AdminSession.query.filter_by(session_token=token).first()
+        if sess:
+            sess.is_active = False
+            db.session.commit()
+    session.clear()
     return redirect(url_for('admin_login'))
+
+@app.route('/admin/revoke-session/<int:session_id>', methods=['POST'])
+@admin_required
+def revoke_session(session_id):
+    target_session = AdminSession.query.get_or_404(session_id)
+    target_session.is_active = False
+    db.session.commit()
+
+    if session.get('admin_token') == target_session.session_token:
+        session.clear()
+        return redirect(url_for('admin_login'))
+
+    return redirect(url_for('admin_dashboard'))
 
 @app.route('/admin')
 @admin_required
@@ -255,6 +306,9 @@ def admin_dashboard():
     login_device = session.get('login_device', 'Windows PC • Browser')
     login_ip = session.get('login_ip', '127.0.0.1')
 
+    active_sessions = AdminSession.query.filter_by(is_active=True).order_by(AdminSession.id.desc()).all()
+    current_token = session.get('admin_token')
+
     return render_template(
         'admin.html',
         products=products,
@@ -268,7 +322,9 @@ def admin_dashboard():
         login_timestamp=login_timestamp,
         login_time_str=login_time_str,
         login_device=login_device,
-        login_ip=login_ip
+        login_ip=login_ip,
+        active_sessions=active_sessions,
+        current_token=current_token
     )
 
 @app.route('/admin/add-banner', methods=['POST'])
