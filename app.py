@@ -210,7 +210,6 @@ def admin_login():
             session['login_time_str'] = time.strftime('%d-%b-%Y, %I:%M %p')
             session['login_ip'] = request.remote_addr or '127.0.0.1'
 
-            # Parse Client Device and Browser
             ua = request.headers.get('User-Agent', '')
             os_name = "Windows PC" if "Windows" in ua else ("macOS" if "Mac" in ua else ("Android" if "Android" in ua else ("iPhone" if "iPhone" in ua else "PC / Mobile")))
             browser_name = "Edge" if "Edg" in ua else ("Chrome" if "Chrome" in ua else ("Firefox" if "Firefox" in ua else ("Safari" if "Safari" in ua else "Browser")))
@@ -230,7 +229,6 @@ def admin_logout():
     session.pop('login_ip', None)
     return redirect(url_for('admin_login'))
 
-# --- ADMIN DASHBOARD ---
 @app.route('/admin')
 @admin_required
 def admin_dashboard():
@@ -252,7 +250,6 @@ def admin_dashboard():
     paid_count = len(paid_orders)
     failed_count = Order.query.filter_by(payment_status="Cancelled / Failed").count()
 
-    # Session & Device Information
     login_timestamp = session.get('login_timestamp', time.time())
     login_time_str = session.get('login_time_str', time.strftime('%d-%b-%Y, %I:%M %p'))
     login_device = session.get('login_device', 'Windows PC • Browser')
@@ -623,8 +620,12 @@ def invoice(order_id):
         return redirect(url_for('payment_failed', reason="Cannot generate invoice for unpaid or cancelled order."))
     return render_template('invoice.html', order=order)
 
+# =========================================================================
+# PRODUCTION DATABASE INITIALIZATION FOR GUNICORN & LOCAL
+# =========================================================================
+with app.app_context():
+    db.create_all()
+    seed_initial_data()
+
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-        seed_initial_data()
     app.run(debug=True)
