@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart | Krishna Jawli Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f0f2f2; }
+        .cart-header { background: #131921; color: white; padding: 12px 0; }
+        .btn-buy { background-color: #ffd814; border-color: #fcd200; color: #0f1111; font-weight: 700; }
+        .btn-buy:hover { background-color: #f7ca00; }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="cart-header mb-4">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a href="/" class="text-white text-decoration-none fw-bold fs-5">
+                <i class="fa-solid fa-arrow-left me-2"></i> KRISHNA JAWLI STORE
+            </a>
+            <span class="badge bg-warning text-dark fs-6">Shopping Cart</span>
+        </div>
+    </header>
+
+    <div class="container pb-5">
+        <div class="row g-4">
+            
+            <!-- Items List -->
+            <div class="col-lg-8">
+                <div class="bg-white p-4 rounded shadow-sm border">
+                    <h4 class="fw-bold border-bottom pb-2 mb-3">Shopping Cart</h4>
+
+                    {% if cart %}
+                        {% for key, item in cart.items() %}
+                        <div class="d-flex justify-content-between align-items-center border-bottom py-3 flex-wrap gap-2">
+                            <div>
+                                <h6 class="fw-bold mb-1">{{ item.name }}</h6>
+                                <span class="badge bg-light text-dark border me-2">Size: {{ item.size }}</span>
+                                <span class="badge bg-secondary">{{ item.category }}</span>
+                                <div class="small text-muted mt-1">Quantity: {{ item.quantity }} × ₹{{ "%.2f"|format(item.price) }}</div>
+                            </div>
+                            <div class="text-end">
+                                <h5 class="fw-bold text-dark mb-1">₹{{ "%.2f"|format(item.price * item.quantity) }}</h5>
+                                <a href="/cart/remove/{{ key }}" class="text-danger small text-decoration-none">
+                                    <i class="fa-solid fa-trash-can me-1"></i> Remove
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fa-solid fa-cart-shopping fa-3x text-muted mb-3"></i>
+                            <h5>Your Shopping Cart is empty</h5>
+                            <a href="/" class="btn btn-warning mt-2 fw-semibold">Continue Shopping</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Summary Checkout Box -->
+            {% if cart %}
+            <div class="col-lg-4">
+                <div class="bg-white p-4 rounded shadow-sm border">
+                    <h5 class="fw-bold border-bottom pb-2 mb-3">Cart Subtotal</h5>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Items Total:</span>
+                        <span class="fs-5 fw-bold">₹{{ "%.2f"|format(subtotal) }}</span>
+                    </div>
+                    <p class="small text-muted mb-3">Taxes (CGST 2.5%, SGST 2.5%) and Compulsory 5% Discount will be calculated on checkout.</p>
+                    <a href="/checkout" class="btn btn-buy w-100 py-2">Proceed to Checkout</a>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+</body>
+</html>

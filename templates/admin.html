@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store Management Portal | Krishna Jawli Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .admin-nav { background-color: #131921; color: white; padding: 12px 0; }
+        .session-banner { background: #ffffff; border-radius: 10px; border: 1px solid #e2e8f0; padding: 14px 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+        .session-pill { display: flex; align-items: center; gap: 10px; }
+        .session-icon { font-size: 1.4rem; color: #2563eb; }
+        .stat-card { background: #fff; border-radius: 8px; border: 1px solid #e2e8f0; padding: 18px; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
+        .thumb-img { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; }
+        .banner-thumb-img { width: 90px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; }
+        .size-price-row { background: #f8f9fa; border: 1px dashed #cbd5e1; border-radius: 6px; padding: 8px; margin-bottom: 8px; }
+        .live-tag { animation: pulse 2s infinite; }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="admin-nav mb-3">
+        <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <h4 class="fw-bold mb-0 text-white">
+                    <i class="fa-solid fa-gauge-high text-warning me-2"></i> Krishna Jawli Store — Admin Portal
+                </h4>
+                <small class="text-secondary">Logged in as: Administrator</small>
+            </div>
+            <div class="d-flex gap-2 align-items-center">
+                <a href="/" target="_blank" class="btn btn-outline-warning btn-sm fw-bold">
+                    <i class="fa-solid fa-store me-1"></i> View Live Store
+                </a>
+                <a href="/admin/logout" class="btn btn-danger btn-sm fw-bold">
+                    <i class="fa-solid fa-arrow-right-from-bracket me-1"></i> Logout
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container pb-5">
+
+        <!-- ========================================================= -->
+        <!-- LIVE DATE, TIME, USAGE TIME & DEVICE LOGIN INFO BAR       -->
+        <!-- ========================================================= -->
+        <div class="session-banner mb-4">
+            <div class="row g-3 align-items-center">
+                
+                <!-- 1. Current Live Date & Time -->
+                <div class="col-md-3 border-end">
+                    <div class="session-pill">
+                        <i class="fa-regular fa-calendar-check session-icon text-primary"></i>
+                        <div>
+                            <span class="text-muted small text-uppercase fw-bold d-block">Current Date & Time</span>
+                            <span id="liveDateTime" class="fw-bold text-dark fs-6">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Active Session Usage Stopwatch -->
+                <div class="col-md-3 border-end">
+                    <div class="session-pill">
+                        <i class="fa-solid fa-stopwatch session-icon text-warning"></i>
+                        <div>
+                            <span class="text-muted small text-uppercase fw-bold d-block">
+                                Active Usage Time <i class="fa-solid fa-circle text-success ms-1 live-tag" style="font-size: 0.6rem;"></i>
+                            </span>
+                            <span id="usageTimer" class="fw-bold text-dark fs-6 font-monospace">00h 00m 00s</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Device & Browser Login -->
+                <div class="col-md-3 border-end">
+                    <div class="session-pill">
+                        <i class="fa-solid fa-laptop session-icon text-success"></i>
+                        <div>
+                            <span class="text-muted small text-uppercase fw-bold d-block">Device Login</span>
+                            <span class="fw-bold text-dark fs-6 text-truncate d-inline-block" style="max-width: 220px;" title="{{ login_device }}">
+                                {{ login_device }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Login Timestamp & IP -->
+                <div class="col-md-3">
+                    <div class="session-pill">
+                        <i class="fa-solid fa-shield-halved session-icon text-info"></i>
+                        <div>
+                            <span class="text-muted small text-uppercase fw-bold d-block">Logged In At & IP</span>
+                            <span class="fw-bold text-dark fs-6">{{ login_time_str }}</span>
+                            <small class="text-muted d-block font-monospace">IP: {{ login_ip }}</small>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Summary Stats Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <span class="text-muted small text-uppercase fw-bold">Total Products</span>
+                    <h3 class="fw-bold mb-0 text-dark">{{ products|length }}</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card border-success">
+                    <span class="text-muted small text-uppercase fw-bold text-success">Verified Paid Orders</span>
+                    <h3 class="fw-bold mb-0 text-success">{{ paid_count }}</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card border-danger">
+                    <span class="text-muted small text-uppercase fw-bold text-danger">Cancelled / Unpaid</span>
+                    <h3 class="fw-bold mb-0 text-danger">{{ failed_count }}</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <span class="text-muted small text-uppercase fw-bold">Total Verified Sales</span>
+                    <h3 class="fw-bold mb-0 text-primary">₹{{ "%.2f"|format(total_revenue) }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- 1. HOMEPAGE SLIDESHOW BANNER MANAGEMENT -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-dark text-white fw-bold d-flex align-items-center justify-content-between">
+                <span><i class="fa-solid fa-images text-warning me-2"></i> Homepage Slideshow Banners Manager</span>
+                <span class="badge bg-warning text-dark">{{ banners|length }} Active Slides</span>
+            </div>
+            <div class="card-body">
+                <div class="row g-4">
+                    <div class="col-lg-5 border-end">
+                        <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">
+                            <i class="fa-solid fa-plus-circle text-success me-1"></i> Upload New Slide Banner
+                        </h6>
+                        <form action="/admin/add-banner" method="POST" enctype="multipart/form-data">
+                            <div class="mb-2">
+                                <label class="form-label small fw-bold">Badge Text (Yellow Tag)</label>
+                                <input type="text" name="badge" class="form-control form-control-sm" placeholder="e.g. Direct from Weavers / Deepavali Special" required>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label small fw-bold">Banner Main Heading (Title) *</label>
+                                <input type="text" name="title" class="form-control form-control-sm" placeholder="e.g. Festival Pure Cotton Sarees Collection" required>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label small fw-bold">Subtitle / Description</label>
+                                <textarea name="subtitle" rows="2" class="form-control form-control-sm" placeholder="Short description shown under the title..."></textarea>
+                            </div>
+                            <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold">Button Text</label>
+                                    <input type="text" name="button_text" class="form-control form-control-sm" value="Explore Collection" required>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold">Button Link URL</label>
+                                    <input type="text" name="link_url" class="form-control form-control-sm" value="#catalog" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Upload Banner Photo (Landscape) *</label>
+                                <input type="file" name="banner_image" class="form-control form-control-sm" accept="image/*" required>
+                            </div>
+                            <button type="submit" class="btn btn-warning btn-sm w-100 fw-bold">
+                                <i class="fa-solid fa-cloud-arrow-up me-1"></i> Upload & Set to Slideshow
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="col-lg-7">
+                        <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">
+                            <i class="fa-solid fa-list text-primary me-1"></i> Current Slideshow Banners
+                        </h6>
+                        <div class="table-responsive" style="max-height: 290px; overflow-y: auto;">
+                            <table class="table table-sm table-hover align-middle small mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Photo</th>
+                                        <th>Title & Badge</th>
+                                        <th>Button</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for b in banners %}
+                                    <tr>
+                                        <td>
+                                            <img src="{{ b.image }}" class="banner-thumb-img" onerror="this.src='https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=200'">
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-warning text-dark">{{ b.badge }}</span><br>
+                                            <strong>{{ b.title }}</strong>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-dark border">{{ b.button_text }}</span>
+                                        </td>
+                                        <td>
+                                            <form action="/admin/delete-banner/{{ b.id }}" method="POST" onsubmit="return confirm('Delete this banner from slideshow?');">
+                                                <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-2">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="4" class="text-center py-3 text-muted">No custom banners yet.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. TAX & DISCOUNT SETTINGS -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-dark text-white fw-bold d-flex align-items-center justify-content-between">
+                <span><i class="fa-solid fa-sliders text-warning me-2"></i> Storewide Tax & Compulsory Discount Settings</span>
+                <span class="badge bg-warning text-dark">Updates All Products & Invoices</span>
+            </div>
+            <div class="card-body">
+                <form action="/admin/update-settings" method="POST" class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold">CGST (%)</label>
+                        <input type="number" step="0.01" name="cgst_percent" class="form-control" value="{{ settings.cgst_percent }}" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold">SGST (%)</label>
+                        <input type="number" step="0.01" name="sgst_percent" class="form-control" value="{{ settings.sgst_percent }}" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold">Compulsory Customer Discount (%)</label>
+                        <input type="number" step="0.01" name="discount_percent" class="form-control" value="{{ settings.discount_percent }}" required>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary w-100 fw-bold">
+                            <i class="fa-solid fa-save me-1"></i> Save & Apply Globally
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 3. ADD PRODUCT FORM & INVENTORY -->
+        <div class="row g-4 mb-5">
+            <div class="col-lg-5">
+                <div class="bg-white p-4 rounded border shadow-sm h-100">
+                    <h5 class="fw-bold border-bottom pb-2 mb-3 text-dark">
+                        <i class="fa-solid fa-plus-circle text-success me-2"></i> Add New Product
+                    </h5>
+
+                    <form action="/admin/add-product" method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Product Name *</label>
+                            <input type="text" name="name" class="form-control" placeholder="e.g. Pure Cotton Kanchi Saree" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Category (Select Option) *</label>
+                            <select class="form-select" id="mainCatSelect" name="category" onchange="updateSubcategories()" required>
+                                <option value="">-- Choose Category --</option>
+                                {% for cat in category_tree.keys() %}
+                                <option value="{{ cat }}">{{ cat }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Subcategory (Select Option) *</label>
+                            <select class="form-select" id="subCatSelect" name="subcategory" required>
+                                <option value="">-- Choose Category First --</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Available Colors (Comma Separated) *</label>
+                            <input type="text" name="colors" class="form-control" placeholder="e.g. Maroon, Mustard Yellow, Peacock Blue" value="White, Maroon, Navy Blue" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label class="form-label small fw-bold mb-0">Sizes & Custom Rates (₹) *</label>
+                                <button type="button" class="btn btn-outline-primary btn-sm py-0 px-2" onclick="addSizePriceRow()">
+                                    <i class="fa-solid fa-plus"></i> Add Size
+                                </button>
+                            </div>
+                            <div id="sizesContainer">
+                                <div class="size-price-row d-flex gap-2 align-items-center">
+                                    <input type="text" name="sizes[]" class="form-control form-control-sm" placeholder="Size (e.g. 85)" value="85" required>
+                                    <input type="number" step="0.01" name="prices[]" class="form-control form-control-sm" placeholder="Rate ₹" value="100" required>
+                                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeSizeRow(this)"><i class="fa-solid fa-trash"></i></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">Total Stock</label>
+                                <input type="number" name="stock" class="form-control" value="25" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">Tag</label>
+                                <select class="form-select" name="tag">
+                                    <option value="Trending">Trending</option>
+                                    <option value="Bestseller">Bestseller</option>
+                                    <option value="New Arrival">New Arrival</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Product Photo (Upload Media) *</label>
+                            <input type="file" name="product_image" class="form-control" accept="image/*" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Description</label>
+                            <textarea name="description" rows="2" class="form-control" placeholder="Fabric, weave, specifications..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-warning w-100 fw-bold py-2 shadow-sm">
+                            <i class="fa-solid fa-cloud-arrow-up me-1"></i> Save Product & Publish
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                <div class="bg-white p-4 rounded border shadow-sm h-100">
+                    <h5 class="fw-bold border-bottom pb-2 mb-3">
+                        <i class="fa-solid fa-boxes-stacked text-secondary me-2"></i> Current Inventory ({{ products|length }})
+                    </h5>
+
+                    <div class="table-responsive" style="max-height: 640px; overflow-y: auto;">
+                        <table class="table table-hover align-middle small">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Image</th>
+                                    <th>Product Details</th>
+                                    <th>Colors</th>
+                                    <th>Sizes & Rates</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in products %}
+                                <tr>
+                                    <td>
+                                        <img src="{{ p.image }}" class="thumb-img" onerror="this.src='/static/uploads/default.jpg'">
+                                    </td>
+                                    <td>
+                                        <strong>{{ p.name }}</strong><br>
+                                        <span class="badge bg-secondary">{{ p.category }} &rsaquo; {{ p.subcategory }}</span>
+                                    </td>
+                                    <td>
+                                        {% for c in p.get_colors() %}
+                                        <span class="badge bg-white text-dark border me-1 mb-1">{{ c }}</span>
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        {% for s in p.get_sizes() %}
+                                        <span class="badge bg-light text-dark border me-1 mb-1">
+                                            {{ s.size }}: ₹{{ "%.2f"|format(s.price) }}
+                                        </span>
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        <form action="/admin/delete-product/{{ p.id }}" method="POST" onsubmit="return confirm('Delete this product from store?');">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm p-1 px-2">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">No products added yet.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. CUSTOMER ORDERS SUMMARY -->
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <h5 class="fw-bold mb-0 text-dark">
+                    <i class="fa-solid fa-receipt text-primary me-2"></i> Customer Orders Summary & Payment Tracking
+                </h5>
+                <div class="btn-group btn-group-sm" role="group">
+                    <a href="/admin?status=all" class="btn {% if filter_status == 'all' %}btn-dark{% else %}btn-outline-dark{% endif %}">
+                        All Orders ({{ orders|length }})
+                    </a>
+                    <a href="/admin?status=success" class="btn {% if filter_status == 'success' %}btn-success{% else %}btn-outline-success{% endif %}">
+                        <i class="fa-solid fa-check me-1"></i> Paid / Success
+                    </a>
+                    <a href="/admin?status=cancelled" class="btn {% if filter_status == 'cancelled' %}btn-danger{% else %}btn-outline-danger{% endif %}">
+                        <i class="fa-solid fa-xmark me-1"></i> Cancelled / Failed
+                    </a>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle small">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer Details</th>
+                                <th>Items Ordered</th>
+                                <th>Bill Breakdown</th>
+                                <th>Grand Total</th>
+                                <th>Razorpay Payment ID</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ord in orders %}
+                            <tr class="{% if ord.payment_status == 'Cancelled / Failed' %}table-danger{% endif %}">
+                                <td>
+                                    <strong>#INV-{{ ord.id }}</strong><br>
+                                    <span class="text-muted">{{ ord.created_at.strftime('%d-%m-%Y %H:%M') if ord.created_at else 'Recent' }}</span>
+                                </td>
+                                <td>
+                                    <strong>{{ ord.customer_name }}</strong><br>
+                                    <a href="tel:{{ ord.customer_phone }}" class="text-decoration-none fw-bold text-dark">
+                                        <i class="fa-solid fa-phone text-success me-1"></i> {{ ord.customer_phone }}
+                                    </a><br>
+                                    <span class="text-muted">{{ ord.address }}</span>
+                                </td>
+                                <td>{{ ord.items_summary }}</td>
+                                <td>
+                                    <div class="text-muted">
+                                        Sub: ₹{{ "%.2f"|format(ord.subtotal) }}<br>
+                                        + Taxes: ₹{{ "%.2f"|format(ord.cgst + ord.sgst) }}<br>
+                                        - Disc: ₹{{ "%.2f"|format(ord.discount) }}
+                                    </div>
+                                </td>
+                                <td class="fw-bold text-primary fs-6">₹{{ "%.2f"|format(ord.grand_total) }}</td>
+                                <td>
+                                    {% if ord.razorpay_payment_id %}
+                                    <div class="small">
+                                        <strong class="text-success">{{ ord.razorpay_payment_id }}</strong><br>
+                                        <span class="text-muted">Order: {{ ord.razorpay_order_id }}</span>
+                                    </div>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Unpaid / No ID</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if ord.payment_status == 'Paid / Success' %}
+                                    <span class="badge bg-success px-2 py-1"><i class="fa-solid fa-check me-1"></i> Paid</span><br>
+                                    <a href="/invoice/{{ ord.id }}" target="_blank" class="small text-primary text-decoration-none">Invoice</a>
+                                    {% else %}
+                                    <span class="badge bg-danger px-2 py-1"><i class="fa-solid fa-triangle-exclamation me-1"></i> Cancelled</span><br>
+                                    <small class="text-danger">{{ ord.shipping_notes }}</small>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center py-4 text-muted">No orders recorded yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Live Date, Time & Usage Stopwatch Scripts -->
+    <script>
+        // 1. Live Real-time Clock
+        function updateLiveClock() {
+            const now = new Date();
+            const options = { 
+                weekday: 'short', 
+                day: '2-digit', 
+                month: 'short', 
+                year: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit', 
+                hour12: true 
+            };
+            const el = document.getElementById('liveDateTime');
+            if (el) el.textContent = now.toLocaleString('en-IN', options);
+        }
+        setInterval(updateLiveClock, 1000);
+        updateLiveClock();
+
+        // 2. Active Session Usage Stopwatch
+        const loginTimeMs = {{ (login_timestamp * 1000)|round|int }};
+        function updateUsageTimer() {
+            const diffSeconds = Math.max(0, Math.floor((Date.now() - loginTimeMs) / 1000));
+            const hours = String(Math.floor(diffSeconds / 3600)).padStart(2, '0');
+            const minutes = String(Math.floor((diffSeconds % 3600) / 60)).padStart(2, '0');
+            const seconds = String(diffSeconds % 60).padStart(2, '0');
+            
+            const timerEl = document.getElementById('usageTimer');
+            if (timerEl) timerEl.textContent = hours + 'h ' + minutes + 'm ' + seconds + 's';
+        }
+        setInterval(updateUsageTimer, 1000);
+        updateUsageTimer();
+
+        // 3. Category & Subcategory Handler
+        var categoryMap = {{ category_tree|tojson }};
+        function updateSubcategories() {
+            var catSelect = document.getElementById('mainCatSelect');
+            var subSelect = document.getElementById('subCatSelect');
+            var selectedCat = catSelect.value;
+            subSelect.innerHTML = '';
+
+            if (selectedCat && categoryMap[selectedCat]) {
+                categoryMap[selectedCat].forEach(function(sub) {
+                    var opt = document.createElement('option');
+                    opt.value = sub;
+                    opt.innerText = sub;
+                    subSelect.appendChild(opt);
+                });
+            } else {
+                var opt = document.createElement('option');
+                opt.value = '';
+                opt.innerText = '-- Choose Category First --';
+                subSelect.appendChild(opt);
+            }
+        }
+
+        // 4. Dynamic Size-Rate Row Repeater
+        function addSizePriceRow() {
+            var container = document.getElementById('sizesContainer');
+            var div = document.createElement('div');
+            div.className = 'size-price-row d-flex gap-2 align-items-center';
+            div.innerHTML = `
+                <input type="text" name="sizes[]" class="form-control form-control-sm" placeholder="Size (e.g. 90)" required>
+                <input type="number" step="0.01" name="prices[]" class="form-control form-control-sm" placeholder="Rate ₹" required>
+                <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeSizeRow(this)"><i class="fa-solid fa-trash"></i></button>
+            `;
+            container.appendChild(div);
+        }
+
+        function removeSizeRow(button) {
+            var rows = document.getElementsByClassName('size-price-row');
+            if (rows.length > 1) {
+                button.parentElement.remove();
+            } else {
+                alert('At least one size and rate must be specified.');
+            }
+        }
+    </script>
+</body>
+</html>

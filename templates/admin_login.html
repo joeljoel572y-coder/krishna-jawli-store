@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | Krishna Jawli Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { background-color: #0f172a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .login-card { max-width: 420px; width: 90%; background: #ffffff; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+    </style>
+</head>
+<body class="d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+
+    <div class="login-card p-4 p-md-5">
+        <div class="text-center mb-4">
+            <i class="fa-solid fa-store text-warning fa-3x mb-2"></i>
+            <h4 class="fw-bold text-dark">Krishna Jawli Store</h4>
+            <span class="badge bg-dark">Admin Management Portal</span>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-danger py-2 small text-center" role="alert">
+            <i class="fa-solid fa-circle-exclamation me-1"></i> {{ error }}
+        </div>
+        {% endif %}
+
+        <form action="/admin/login" method="POST">
+            <div class="mb-3">
+                <label class="form-label small fw-bold text-secondary">Admin Username</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa-solid fa-user text-muted"></i></span>
+                    <input type="text" name="username" class="form-control" placeholder="Enter admin username" required autofocus>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label small fw-bold text-secondary">Password</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa-solid fa-lock text-muted"></i></span>
+                    <input type="password" name="password" class="form-control" placeholder="Enter password" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-warning w-100 py-2 fw-bold shadow-sm">
+                <i class="fa-solid fa-right-to-bracket me-1"></i> Login to Dashboard
+            </button>
+        </form>
+    </div>
+
+</body>
+</html>

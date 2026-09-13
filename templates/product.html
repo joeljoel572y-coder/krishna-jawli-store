@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.name }} | Krishna Jawli Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f8f9fa; }
+        .product-img-box { position: relative; overflow: hidden; border: 1px solid #e0e0e0; border-radius: 8px; background: #fff; text-align: center; padding: 15px; }
+        .product-main-photo { max-height: 480px; width: 100%; object-fit: contain; border-radius: 6px; }
+        .btn-buy { background-color: #ffa41c; border-color: #ff8f00; color: #0f1111; font-weight: 700; }
+        .btn-buy:hover { background-color: #f08804; }
+        .btn-cart { background-color: #ffd814; border-color: #fcd200; color: #0f1111; font-weight: 600; }
+        .btn-cart:hover { background-color: #f7ca00; }
+        .cart-badge { background-color: #ff9900; color: #111; font-size: 0.8rem; font-weight: 800; border-radius: 50%; padding: 2px 7px; margin-left: 4px; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-dark bg-dark py-2">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a href="/" class="navbar-brand fw-bold text-warning mb-0">
+                <i class="fa-solid fa-arrow-left me-2"></i> Krishna Jawli Store
+            </a>
+            <div class="d-flex gap-3 align-items-center">
+                <a href="/cart" class="text-white text-decoration-none fw-bold fs-6 px-2 py-1 rounded border border-secondary">
+                    <i class="fa-solid fa-cart-shopping text-warning me-1"></i> Cart
+                    <span id="navCartBadge" class="cart-badge">{{ cart_count }}</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-4">
+        <div class="row g-4 bg-white p-4 rounded shadow-sm">
+            
+            <!-- Left: Dynamic Product Photo -->
+            <div class="col-md-5">
+                <div class="product-img-box">
+                    <img src="{{ product.image }}" alt="{{ product.name }}" id="mainProductImg" class="product-main-photo" onerror="this.src='https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=500'">
+                </div>
+            </div>
+
+            <!-- Right: Details, Color Selector & Size Rates -->
+            <div class="col-md-7">
+                <span class="badge bg-secondary mb-2">{{ product.category }} &rsaquo; {{ product.subcategory }}</span>
+                <h3 class="fw-bold">{{ product.name }}</h3>
+
+                <div class="mb-3">
+                    <div class="d-flex align-items-baseline gap-2">
+                        <span class="fs-3 fw-bold text-danger">₹<span id="dynamicPrice">{{ "%.2f"|format(product.price) }}</span></span>
+                        <span class="badge bg-danger">{{ discount_rate }}% Customer Discount</span>
+                    </div>
+                    <p class="small text-muted mb-0">CGST ({{ cgst_rate }}%) & SGST ({{ sgst_rate }}%) computed during checkout.</p>
+                </div>
+
+                <div class="mb-3">
+                    <span class="badge bg-success"><i class="fa-solid fa-check"></i> In Stock (Trichy Godown)</span>
+                </div>
+
+                <p class="text-secondary small">{{ product.description }}</p>
+
+                <!-- DYNAMIC COLOR SELECTOR -->
+                <div class="border-top pt-3 mb-3">
+                    <label class="form-label fw-bold small">Select Color:</label>
+                    <div class="btn-group d-flex flex-wrap gap-1" role="group">
+                        {% for col in product.get_colors() %}
+                        <input type="radio" class="btn-check" name="color_option" id="color_{{ loop.index }}" value="{{ col }}" {% if loop.first %}checked{% endif %}>
+                        <label class="btn btn-outline-secondary btn-sm px-3" for="color_{{ loop.index }}">
+                            <i class="fa-solid fa-palette me-1 text-primary"></i> {{ col }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- SIZE SELECTOR WITH DYNAMIC PRICING -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold small">Select Size & View Rate:</label>
+                    <div class="btn-group d-flex flex-wrap gap-1" role="group">
+                        {% for s in product.get_sizes() %}
+                        <input type="radio" class="btn-check" name="size_option" id="size_{{ loop.index }}" value="{{ s.size }}" data-price="{{ s.price }}" {% if loop.first %}checked{% endif %} onchange="onSizeChanged(this)">
+                        <label class="btn btn-outline-dark btn-sm px-3" for="size_{{ loop.index }}">
+                            {{ s.size }} <span class="badge bg-warning text-dark ms-1">₹{{ "%.0f"|format(s.price) }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Quantity & Actions -->
+                <div class="d-flex gap-3">
+                    <div style="width: 100px;">
+                        <label class="form-label small fw-bold mb-1">Quantity</label>
+                        <select class="form-select form-select-sm" id="productQuantity">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    
+                    <div class="d-flex align-items-end gap-2 flex-grow-1">
+                        <button type="button" onclick="addCurrentSelectionToCart({{ product.id }}, this)" class="btn btn-cart flex-grow-1 py-2">
+                            <i class="fa-solid fa-cart-plus me-1"></i> Add to Cart
+                        </button>
+
+                        <form action="/add-to-cart/{{ product.id }}" method="POST" class="flex-grow-1 mb-0" onsubmit="syncBuyNow(this)">
+                            <input type="hidden" name="size" id="buyNowSize">
+                            <input type="hidden" name="color" id="buyNowColor">
+                            <input type="hidden" name="price" id="buyNowPrice">
+                            <input type="hidden" name="quantity" id="buyNowQty">
+                            <input type="hidden" name="action" value="buy_now">
+                            <button type="submit" class="btn btn-buy w-100 py-2">
+                                <i class="fa-solid fa-bolt me-1"></i> Buy Now
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function onSizeChanged(radio) {
+            var price = radio.getAttribute('data-price');
+            document.getElementById('dynamicPrice').innerText = parseFloat(price).toFixed(2);
+        }
+
+        function addCurrentSelectionToCart(productId, btn) {
+            var checkedSize = document.querySelector('input[name="size_option"]:checked');
+            var size = checkedSize ? checkedSize.value : 'Standard';
+            var price = checkedSize ? checkedSize.getAttribute('data-price') : '{{ product.price }}';
+
+            var checkedColor = document.querySelector('input[name="color_option"]:checked');
+            var color = checkedColor ? checkedColor.value : 'Standard';
+
+            var qty = document.getElementById('productQuantity').value;
+
+            var fd = new FormData();
+            fd.append('size', size);
+            fd.append('color', color);
+            fd.append('price', price);
+            fd.append('quantity', qty);
+            fd.append('ajax', '1');
+
+            fetch('/add-to-cart/' + productId, { method: 'POST', body: fd })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById('navCartBadge').innerText = data.cart_count;
+                    var orig = btn.innerHTML;
+                    btn.innerHTML = '<i class="fa-solid fa-check text-success me-1"></i> Added!';
+                    setTimeout(() => { btn.innerHTML = orig; }, 1200);
+                }
+            });
+        }
+
+        function syncBuyNow(form) {
+            var checkedSize = document.querySelector('input[name="size_option"]:checked');
+            var checkedColor = document.querySelector('input[name="color_option"]:checked');
+
+            document.getElementById('buyNowSize').value = checkedSize ? checkedSize.value : 'Standard';
+            document.getElementById('buyNowColor').value = checkedColor ? checkedColor.value : 'Standard';
+            document.getElementById('buyNowPrice').value = checkedSize ? checkedSize.getAttribute('data-price') : '{{ product.price }}';
+            document.getElementById('buyNowQty').value = document.getElementById('productQuantity').value;
+        }
+
+        var initialRadio = document.querySelector('input[name="size_option"]:checked');
+        if (initialRadio) onSizeChanged(initialRadio);
+    </script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+Flask
+Flask-SQLAlchemy
+razorpay
+gunicorn
+Werkzeug

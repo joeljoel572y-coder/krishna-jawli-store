@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice #INV-{{ order.id }} | Krishna Jawli Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { background-color: #f8f9fa; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .invoice-box {
+            max-width: 850px;
+            margin: 30px auto;
+            padding: 35px;
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .invoice-title { font-weight: 800; letter-spacing: 0.5px; color: #131921; }
+        .table-custom thead { background-color: #f1f3f5; font-size: 0.85rem; text-transform: uppercase; }
+        @media print {
+            body { background: none; }
+            .invoice-box { border: none; box-shadow: none; margin: 0; padding: 0; max-width: 100%; }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="invoice-box">
+        
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-start border-bottom pb-4 mb-4">
+            <div>
+                <h3 class="invoice-title mb-1">KRISHNA JAWLI STORE</h3>
+                <p class="text-muted small mb-0">Textiles, Innerwear, Handloom, Fashion, Home Textile & Kids Wear</p>
+                <p class="text-muted small mb-0">GSTIN: 33AAAAK0000A1Z5</p>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-success px-3 py-2 fs-6 mb-2">PAID / VERIFIED</span>
+                <p class="mb-0 small fw-bold">TAX INVOICE: #KJS-{{ order.id }}</p>
+                <p class="text-muted small mb-0">Estimated Delivery: {{ order.delivery_date }}</p>
+            </div>
+        </div>
+
+        <!-- Store & Customer Addresses -->
+        <div class="row mb-4">
+            <div class="col-6">
+                <h6 class="text-uppercase fw-bold text-secondary small mb-2">Supplied From:</h6>
+                <p class="fw-bold mb-1">Main Branch:</p>
+                <p class="small text-muted mb-1">39, Parupukkara Street, Palakkarai, Thiruchirapalli – 620001</p>
+                <p class="fw-bold mb-1 mt-2">Second Branch:</p>
+                <p class="small text-muted mb-1">Singarathopu, Thiruchirapalli – 620008</p>
+                <p class="small text-muted mb-0"><i class="fa-solid fa-phone me-1"></i> +91 6380994544</p>
+            </div>
+            <div class="col-6 text-end">
+                <h6 class="text-uppercase fw-bold text-secondary small mb-2">Billed & Shipped To:</h6>
+                <p class="fw-bold mb-1">{{ order.customer_name }}</p>
+                <p class="small text-muted mb-1">{{ order.address }}</p>
+                <p class="small text-muted mb-0"><i class="fa-solid fa-phone me-1"></i> +91 {{ order.customer_phone }}</p>
+            </div>
+        </div>
+
+        <!-- Product Line Items -->
+        <div class="table-responsive mb-4">
+            <table class="table table-bordered table-custom mb-0">
+                <thead>
+                    <tr>
+                        <th>Item Description</th>
+                        <th class="text-center" style="width: 80px;">Qty</th>
+                        <th class="text-end" style="width: 140px;">Rate (₹)</th>
+                        <th class="text-end" style="width: 140px;">Amount (₹)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <strong>Krishna Jawli Store Assorted Textile Selection</strong>
+                            <div class="text-muted small">Handloom / Fashion & Home Textile Goods</div>
+                        </td>
+                        <td class="text-center">1</td>
+                        <td class="text-end">₹{{ "%.2f"|format(order.subtotal) }}</td>
+                        <td class="text-end">₹{{ "%.2f"|format(order.subtotal) }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Billing Math Breakdown -->
+        <div class="row justify-content-end mb-4">
+            <div class="col-md-6">
+                <table class="table table-sm table-borderless small">
+                    <tr>
+                        <td>Subtotal:</td>
+                        <td class="text-end fw-bold">₹{{ "%.2f"|format(order.subtotal) }}</td>
+                    </tr>
+                    <tr>
+                        <td>CGST (2.5%):</td>
+                        <td class="text-end">+ ₹{{ "%.2f"|format(order.cgst) }}</td>
+                    </tr>
+                    <tr>
+                        <td>SGST (2.5%):</td>
+                        <td class="text-end">+ ₹{{ "%.2f"|format(order.sgst) }}</td>
+                    </tr>
+                    <tr class="text-danger fw-bold border-bottom">
+                        <td>Compulsory Customer Discount – 5%:</td>
+                        <td class="text-end">- ₹{{ "%.2f"|format(order.discount) }}</td>
+                    </tr>
+                    <tr class="fs-5 fw-bold text-dark">
+                        <td class="pt-2">Grand Total:</td>
+                        <td class="text-end pt-2 text-primary">₹{{ "%.2f"|format(order.grand_total) }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Notes & Instructions -->
+        <div class="alert alert-light border small text-secondary mb-4">
+            <strong>Delivery Instructions / Shipping Notes:</strong><br>
+            {{ order.shipping_notes }}
+        </div>
+
+        <!-- Tagline -->
+        <div class="text-center border-top pt-4">
+            <h5 class="fst-italic text-secondary mb-1">“God is in the work he does.”</h5>
+            <p class="text-muted small mb-0">Thank you for shopping with Krishna Jawli Store, Trichy.</p>
+        </div>
+
+        <!-- Print & WhatsApp Action Controls -->
+        <div class="d-flex justify-content-center gap-3 mt-4 no-print">
+            <button onclick="window.print()" class="btn btn-dark btn-sm px-3">
+                <i class="fa-solid fa-print me-1"></i> Print / Download PDF
+            </button>
+            <a href="https://wa.me/91{{ order.customer_phone }}?text=Invoice%20KJS-{{ order.id }}%20from%20Krishna%20Jawli%20Store%20Total:%20₹{{ order.grand_total }}" target="_blank" class="btn btn-success btn-sm px-3">
+                <i class="fa-brands fa-whatsapp me-1"></i> Share via WhatsApp
+            </a>
+            <a href="/" class="btn btn-outline-secondary btn-sm px-3">
+                <i class="fa-solid fa-house me-1"></i> Back to Home
+            </a>
+        </div>
+
+    </div>
+
+</body>
+</html>
