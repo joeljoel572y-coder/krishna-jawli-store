@@ -75,7 +75,7 @@ TRANSLATIONS = {
         "checkout": "Proceed to Checkout",
         "view_all": "View All",
         "direct_weavers": "Direct from Weavers",
-        # Category Names
+        # Categories
         "Handloom Products": "Handloom Products",
         "Home Textiles": "Home Textiles",
         "Kerchiefs for Men & Women": "Kerchiefs for Men & Women",
@@ -120,7 +120,7 @@ TRANSLATIONS = {
         "checkout": "ஆர்டர் செய்ய தொடரவும்",
         "view_all": "அனைத்தையும் பார்க்க",
         "direct_weavers": "நெசவாளர்களிடமிருந்து நேரடியாக",
-        # Category Names
+        # Categories
         "Handloom Products": "கைத்தறி ரகங்கள்",
         "Home Textiles": "ஹோம் டெக்ஸ்டைல்ஸ்",
         "Kerchiefs for Men & Women": "கைக்குட்டைகள்",
@@ -320,7 +320,7 @@ def admin_login():
             session['admin_logged_in'] = True
             session['login_timestamp'] = time.time()
             session['login_time_str'] = time.strftime('%d-%b-%Y, %I:%M %p')
-            session['login_ip'] = request.remote_addr or '127.0.0.1'
+            session['login_ip'] = request.headers.get('X-Forwarded-For', request.remote_addr or '127.0.0.1').split(',')[0].strip()
 
             ua = request.headers.get('User-Agent', '')
             os_name = "Windows PC" if "Windows" in ua else ("macOS" if "Mac" in ua else ("Android" if "Android" in ua else ("iPhone" if "iPhone" in ua else "Device")))
