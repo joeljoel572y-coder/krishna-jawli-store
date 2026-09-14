@@ -19,16 +19,36 @@
         </div>
         {% endif %}
 
-        <form method="POST" action="/admin/login" class="space-y-5">
+        <form method="POST" action="/admin/login" autocomplete="off" class="space-y-5">
+            <!-- Hidden dummy fields to capture browser autofill -->
+            <input type="text" name="fake_usernameremembered" style="display:none" tabindex="-1">
+            <input type="password" name="fake_passwordremembered" style="display:none" tabindex="-1">
+
             <div>
                 <label class="block text-slate-300 text-xs font-semibold uppercase tracking-wider mb-2">Admin Email</label>
-                <input type="email" name="email" required placeholder="joeljoel572y@gmail.com"
+                <input 
+                    type="email" 
+                    name="email" 
+                    id="admin_email" 
+                    required 
+                    autocomplete="off" 
+                    value=""
+                    readonly 
+                    onfocus="this.removeAttribute('readonly');"
                     class="w-full bg-slate-950/60 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500">
             </div>
 
             <div>
                 <label class="block text-slate-300 text-xs font-semibold uppercase tracking-wider mb-2">Password</label>
-                <input type="password" name="password" required placeholder="••••••••••••"
+                <input 
+                    type="password" 
+                    name="password" 
+                    id="admin_password" 
+                    required 
+                    autocomplete="new-password" 
+                    value=""
+                    readonly 
+                    onfocus="this.removeAttribute('readonly');"
                     class="w-full bg-slate-950/60 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500">
             </div>
 
