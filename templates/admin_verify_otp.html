@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP - Krishna Jawli Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl p-8 max-w-md w-full shadow-2xl">
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-bold text-white tracking-wide">Verify Identity</h1>
+            <p class="text-indigo-400 text-sm mt-1">A 6-digit code was sent to your Gmail</p>
+        </div>
+
+        {% if error %}
+        <div class="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm text-center">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="/admin/verify-otp" class="space-y-6">
+            <div>
+                <label class="block text-slate-300 text-xs font-semibold uppercase tracking-wider mb-2">Enter 6-Digit OTP</label>
+                <input type="text" name="otp" maxlength="6" pattern="\d{6}" required autofocus placeholder="123456"
+                    class="w-full bg-slate-950/60 border border-slate-700 rounded-xl px-4 py-3 text-white text-center text-2xl tracking-widest font-mono focus:outline-none focus:border-indigo-500">
+            </div>
+
+            <button type="submit" 
+                class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-6 rounded-xl transition duration-200">
+                Verify & Open Dashboard
+            </button>
+
+            <div class="text-center">
+                <a href="/admin/login" class="text-xs text-slate-400 hover:text-slate-200 underline">Wrong email? Start over</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

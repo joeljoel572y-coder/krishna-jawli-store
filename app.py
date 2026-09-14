@@ -1,8 +1,9 @@
 import os
 import json
 import time
-import secrets
-from datetime import datetime
+import random
+import smtplib
+from email.mime.text import MIMEText
 from functools import wraps
 from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
@@ -18,8 +19,29 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 db = SQLAlchemy(app)
 
-ADMIN_USERNAME = "admin"
-ADMIN_PASSWORD = "krishna@jawli2026"
+# --- SECURE ADMIN EMAIL CONFIGURATION ---
+ADMIN_EMAIL = "joeljoel572y@gmail.com"
+SENDER_EMAIL = "joeljoel572y@gmail.com"
+SENDER_APP_PASSWORD = "isfr bxlr haex xdtp"
+
+def send_otp_email(to_email, otp_code):
+    subject = "Krishna Jawli Store - Admin Login OTP"
+    body = f"""Hello Joel,
+
+Your 6-digit login verification code for the Krishna Jawli Store Admin Dashboard is:
+
+{otp_code}
+
+This code is valid for 5 minutes. If you did not initiate this request, no action is needed.
+"""
+    msg = MIMEText(body)
+    msg['Subject'] = subject
+    msg['From'] = SENDER_EMAIL
+    msg['To'] = to_email
+
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+        server.login(SENDER_EMAIL, SENDER_APP_PASSWORD.replace(" ", ""))
+        server.send_message(msg)
 
 # --- CONFIGURED RAZORPAY TEST CREDENTIALS ---
 RAZORPAY_KEY_ID = "rzp_test_TbXzNlIZrtPYMB"
@@ -116,15 +138,6 @@ class Order(db.Model):
     delivery_date = db.Column(db.String(50), default="3-5 Business Days")
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
-class AdminSession(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    session_token = db.Column(db.String(64), unique=True, nullable=False)
-    device_name = db.Column(db.String(150), nullable=False)
-    ip_address = db.Column(db.String(50), nullable=False)
-    login_time = db.Column(db.String(50), nullable=False)
-    last_seen = db.Column(db.DateTime, default=datetime.utcnow)
-    is_active = db.Column(db.Boolean, default=True)
-
 def get_settings():
     setting = StoreSetting.query.first()
     if not setting:
@@ -200,21 +213,12 @@ def seed_initial_data():
         db.session.add_all([sample1, sample2])
     db.session.commit()
 
-# --- ADMIN AUTHENTICATION ---
+# --- ADMIN AUTHENTICATION WITH EMAIL OTP ---
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        token = session.get('admin_token')
-        if not token:
+        if not session.get('admin_logged_in'):
             return redirect(url_for('admin_login'))
-            
-        admin_sess = AdminSession.query.filter_by(session_token=token, is_active=True).first()
-        if not admin_sess:
-            session.clear()
-            return redirect(url_for('admin_login'))
-            
-        admin_sess.last_seen = datetime.utcnow()
-        db.session.commit()
         return f(*args, **kwargs)
     return decorated_function
 
@@ -222,63 +226,64 @@ def admin_required(f):
 def admin_login():
     error = None
     if request.method == 'POST':
-        user = request.form.get('username')
-        pwd = request.form.get('password')
-        if user == ADMIN_USERNAME and pwd == ADMIN_PASSWORD:
-            token = secrets.token_hex(24)
-            session['admin_token'] = token
+        email = request.form.get('email', '').strip().lower()
+        if email == ADMIN_EMAIL.lower():
+            otp = f"{random.randint(100000, 999999)}"
+            session['admin_otp'] = otp
+            session['admin_otp_expiry'] = time.time() + 300
+            session['pending_admin_email'] = email
+
+            try:
+                send_otp_email(ADMIN_EMAIL, otp)
+                return redirect(url_for('admin_verify_otp'))
+            except Exception as e:
+                error = f"Error delivering OTP to Gmail: {e}"
+        else:
+            error = "Access Denied: Unrecognized administrator email."
+    return render_template('admin_login.html', error=error)
+
+@app.route('/admin/verify-otp', methods=['GET', 'POST'])
+def admin_verify_otp():
+    error = None
+    if 'pending_admin_email' not in session:
+        return redirect(url_for('admin_login'))
+
+    if request.method == 'POST':
+        entered_otp = request.form.get('otp', '').strip()
+        actual_otp = session.get('admin_otp')
+        expiry = session.get('admin_otp_expiry', 0)
+
+        if time.time() > expiry:
+            error = "Verification code expired (5-minute limit). Please request a new code."
+        elif entered_otp == actual_otp:
+            session.pop('admin_otp', None)
+            session.pop('admin_otp_expiry', None)
+            session.pop('pending_admin_email', None)
+
             session['admin_logged_in'] = True
             session['login_timestamp'] = time.time()
             session['login_time_str'] = time.strftime('%d-%b-%Y, %I:%M %p')
-            
-            raw_ip = request.headers.get('X-Forwarded-For', request.remote_addr or '127.0.0.1')
-            clean_ip = raw_ip.split(',')[0].strip()
-            session['login_ip'] = clean_ip
+            session['login_ip'] = request.remote_addr or '127.0.0.1'
 
             ua = request.headers.get('User-Agent', '')
-            os_name = "Windows PC" if "Windows" in ua else ("macOS" if "Mac" in ua else ("Android" if "Android" in ua else ("iPhone" if "iPhone" in ua else "PC / Mobile")))
+            os_name = "Windows PC" if "Windows" in ua else ("macOS" if "Mac" in ua else ("Android" if "Android" in ua else ("iPhone" if "iPhone" in ua else "Device")))
             browser_name = "Edge" if "Edg" in ua else ("Chrome" if "Chrome" in ua else ("Firefox" if "Firefox" in ua else ("Safari" if "Safari" in ua else "Browser")))
-            device_str = f"{os_name} • {browser_name}"
-            session['login_device'] = device_str
-
-            new_session = AdminSession(
-                session_token=token,
-                device_name=device_str,
-                ip_address=clean_ip,
-                login_time=session['login_time_str'],
-                is_active=True
-            )
-            db.session.add(new_session)
-            db.session.commit()
+            session['login_device'] = f"{os_name} • {browser_name}"
 
             return redirect(url_for('admin_dashboard'))
         else:
-            error = "Invalid admin username or password."
-    return render_template('admin_login.html', error=error)
+            error = "Invalid 6-digit code. Check your Gmail inbox."
+
+    return render_template('admin_verify_otp.html', error=error)
 
 @app.route('/admin/logout')
 def admin_logout():
-    token = session.get('admin_token')
-    if token:
-        sess = AdminSession.query.filter_by(session_token=token).first()
-        if sess:
-            sess.is_active = False
-            db.session.commit()
-    session.clear()
+    session.pop('admin_logged_in', None)
+    session.pop('login_timestamp', None)
+    session.pop('login_time_str', None)
+    session.pop('login_device', None)
+    session.pop('login_ip', None)
     return redirect(url_for('admin_login'))
-
-@app.route('/admin/revoke-session/<int:session_id>', methods=['POST'])
-@admin_required
-def revoke_session(session_id):
-    target_session = AdminSession.query.get_or_404(session_id)
-    target_session.is_active = False
-    db.session.commit()
-
-    if session.get('admin_token') == target_session.session_token:
-        session.clear()
-        return redirect(url_for('admin_login'))
-
-    return redirect(url_for('admin_dashboard'))
 
 @app.route('/admin')
 @admin_required
@@ -306,9 +311,6 @@ def admin_dashboard():
     login_device = session.get('login_device', 'Windows PC • Browser')
     login_ip = session.get('login_ip', '127.0.0.1')
 
-    active_sessions = AdminSession.query.filter_by(is_active=True).order_by(AdminSession.id.desc()).all()
-    current_token = session.get('admin_token')
-
     return render_template(
         'admin.html',
         products=products,
@@ -322,9 +324,7 @@ def admin_dashboard():
         login_timestamp=login_timestamp,
         login_time_str=login_time_str,
         login_device=login_device,
-        login_ip=login_ip,
-        active_sessions=active_sessions,
-        current_token=current_token
+        login_ip=login_ip
     )
 
 @app.route('/admin/add-banner', methods=['POST'])
@@ -677,7 +677,7 @@ def invoice(order_id):
     return render_template('invoice.html', order=order)
 
 # =========================================================================
-# PRODUCTION DATABASE INITIALIZATION FOR GUNICORN & LOCAL
+# PRODUCTION DATABASE INITIALIZATION
 # =========================================================================
 with app.app_context():
     db.create_all()
