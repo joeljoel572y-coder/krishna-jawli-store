@@ -3,375 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Krishna Jawli Store - Admin Control Center</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <style>
-        body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .card { border-radius: 12px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .stat-card { border-left: 4px solid; }
-        .badge-pill { border-radius: 50rem; }
-    </style>
+    <title>Admin Dashboard - Krishna Jawli Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="py-4">
-<div class="container-fluid px-4">
+<body class="bg-slate-900 text-slate-100 min-h-screen">
 
-    <!-- TOP HEADER & SECURITY BAR -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom">
-        <div>
-            <h2 class="fw-bold mb-1 text-dark">Krishna Jawli Store — Admin Portal</h2>
-            <div class="text-muted small d-flex flex-wrap gap-3 mt-2 align-items-center">
-                <span><i class="bi bi-clock me-1 text-primary"></i><strong>Live Time:</strong> <span id="liveClock">--:--:--</span></span>
-                <span><i class="bi bi-stopwatch me-1 text-warning"></i><strong>Active Session:</strong> <span id="sessionTimer">0m 0s</span></span>
-                <span><i class="bi bi-laptop me-1 text-info"></i><strong>Device:</strong> {{ login_device }}</span>
-                <span><i class="bi bi-geo-alt me-1 text-danger"></i><strong>IP:</strong> {{ login_ip }}</span>
+    <!-- TOP ADMIN BAR -->
+    <header class="bg-slate-950 border-b border-slate-800 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <span class="w-8 h-8 rounded-lg bg-indigo-600 text-white font-bold flex items-center justify-center">K</span>
+                <span class="font-bold text-white text-lg">Krishna Jawli Admin</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <a href="/" target="_blank" class="text-xs text-slate-400 hover:text-white transition">View Storefront ↗</a>
+                <a href="/admin/logout" class="text-xs bg-rose-600/20 text-rose-300 border border-rose-500/30 px-3 py-1.5 rounded-lg hover:bg-rose-600 hover:text-white transition">Log Out</a>
             </div>
         </div>
-        <div class="mt-3 mt-md-0 d-flex gap-2">
-            <a href="/" target="_blank" class="btn btn-outline-secondary btn-sm"><i class="bi bi-shop me-1"></i>View Live Store</a>
-            <a href="{{ url_for('admin_logout') }}" class="btn btn-danger btn-sm"><i class="bi bi-box-arrow-right me-1"></i>Log Out</a>
-        </div>
-    </div>
+    </header>
 
-    <!-- ACTIVE SESSIONS & DEVICE MANAGEMENT -->
-    <div class="card mb-4">
-        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3">
-            <h6 class="mb-0 fw-bold"><i class="bi bi-shield-lock me-2 text-warning"></i>Active Logged-in Devices</h6>
-            <span class="badge bg-success rounded-pill px-3 py-1">{{ active_sessions|length }} Online</span>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Device & Browser</th>
-                        <th>IP Address</th>
-                        <th>Login Time</th>
-                        <th>Status</th>
-                        <th class="text-end">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for sess in active_sessions %}
-                    <tr>
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <span class="fs-5 me-2">
-                                    {% if "Phone" in sess.device_name or "Android" in sess.device_name or "iPhone" in sess.device_name %}📱{% else %}💻{% endif %}
-                                </span>
-                                <div>
-                                    <strong>{{ sess.device_name }}</strong>
-                                    {% if sess.session_token == current_token %}
-                                        <span class="badge bg-primary-subtle text-primary border border-primary ms-1" style="font-size: 0.75rem;">This Device</span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </td>
-                        <td><code>{{ sess.ip_address }}</code></td>
-                        <td><small class="text-muted">{{ sess.login_time }}</small></td>
-                        <td><span class="badge bg-success">Active</span></td>
-                        <td class="text-end">
-                            <form action="{{ url_for('revoke_session', session_id=sess.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Disconnect this device immediately?');">
-                                <button type="submit" class="btn btn-sm btn-outline-danger">
-                                    <i class="bi bi-x-circle me-1"></i>
-                                    {% if sess.session_token == current_token %}Log Out{% else %}Disconnect Device{% endif %}
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
-    <!-- REVENUE & METRICS CARDS -->
-    <div class="row g-3 mb-4">
-        <div class="col-md-4">
-            <div class="card p-3 stat-card border-success">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="text-muted small text-uppercase fw-bold">Total Paid Revenue</div>
-                        <div class="fs-3 fw-bold text-success">₹{{ "%.2f"|format(total_revenue) }}</div>
-                    </div>
-                    <i class="bi bi-cash-stack fs-1 text-success opacity-50"></i>
+        <!-- DEVICE TRACKING & ACTIVE SESSION BANNER -->
+        <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <span class="relative flex h-3 w-3">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                </span>
+                <div>
+                    <h3 class="text-sm font-semibold text-white">Authenticated Admin Session</h3>
+                    <p class="text-xs text-slate-400">joeljoel572y@gmail.com</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 text-xs">
+                <div class="bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-xl flex items-center space-x-2">
+                    <span class="text-slate-400">Device:</span>
+                    <span class="font-semibold text-indigo-400 font-mono">{{ login_device }}</span>
+                </div>
+                <div class="bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-xl flex items-center space-x-2">
+                    <span class="text-slate-400">IP:</span>
+                    <span class="font-semibold text-indigo-400 font-mono">{{ login_ip }}</span>
+                </div>
+                <div class="bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-xl flex items-center space-x-2">
+                    <span class="text-slate-400">Logged in:</span>
+                    <span class="font-semibold text-slate-300">{{ login_time_str }}</span>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card p-3 stat-card border-primary">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="text-muted small text-uppercase fw-bold">Paid Orders</div>
-                        <div class="fs-3 fw-bold text-primary">{{ paid_count }}</div>
-                    </div>
-                    <i class="bi bi-bag-check fs-1 text-primary opacity-50"></i>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card p-3 stat-card border-danger">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="text-muted small text-uppercase fw-bold">Cancelled / Failed</div>
-                        <div class="fs-3 fw-bold text-danger">{{ failed_count }}</div>
-                    </div>
-                    <i class="bi bi-x-octagon fs-1 text-danger opacity-50"></i>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- TAX & STORE SETTINGS -->
-    <div class="card mb-4">
-        <div class="card-header bg-white py-3">
-            <h6 class="mb-0 fw-bold"><i class="bi bi-sliders me-2 text-primary"></i>Store Taxes & Discount Rates</h6>
+        <!-- REVENUE & KPI METRICS -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6">
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Sales Revenue</span>
+                <p class="text-3xl font-bold text-emerald-400 mt-2">₹{{ "%.2f"|format(total_revenue) }}</p>
+            </div>
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6">
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Paid Orders</span>
+                <p class="text-3xl font-bold text-indigo-400 mt-2">{{ paid_count }}</p>
+            </div>
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6">
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Failed / Cancelled</span>
+                <p class="text-3xl font-bold text-rose-400 mt-2">{{ failed_count }}</p>
+            </div>
         </div>
-        <div class="card-body">
-            <form action="{{ url_for('update_settings') }}" method="POST" class="row g-3 align-items-end">
-                <div class="col-md-3">
-                    <label class="form-label small fw-bold">CGST (%)</label>
-                    <input type="number" step="0.01" name="cgst_percent" class="form-control" value="{{ settings.cgst_percent }}" required>
+
+        <!-- STORE TAX & DISCOUNT CONFIGURATION -->
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6">
+            <h2 class="text-lg font-bold text-white mb-4">Store Rates Configuration</h2>
+            <form method="POST" action="/admin/update-settings" class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">CGST (%)</label>
+                    <input type="number" step="0.1" name="cgst_percent" value="{{ settings.cgst_percent }}" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm">
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label small fw-bold">SGST (%)</label>
-                    <input type="number" step="0.01" name="sgst_percent" class="form-control" value="{{ settings.sgst_percent }}" required>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">SGST (%)</label>
+                    <input type="number" step="0.1" name="sgst_percent" value="{{ settings.sgst_percent }}" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm">
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label small fw-bold">Store Discount (%)</label>
-                    <input type="number" step="0.01" name="discount_percent" class="form-control" value="{{ settings.discount_percent }}" required>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Store Discount (%)</label>
+                    <input type="number" step="0.1" name="discount_percent" value="{{ settings.discount_percent }}" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm">
                 </div>
-                <div class="col-md-3">
-                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-check2-circle me-1"></i>Save Settings</button>
-                </div>
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 px-4 rounded-xl text-sm transition">
+                    Save Rates
+                </button>
             </form>
         </div>
-    </div>
 
-    <!-- ORDERS TABLE -->
-    <div class="card mb-4">
-        <div class="card-header bg-white d-flex flex-wrap justify-content-between align-items-center py-3">
-            <h6 class="mb-0 fw-bold"><i class="bi bi-receipt me-2 text-primary"></i>Customer Orders</h6>
-            <div class="btn-group btn-group-sm mt-2 mt-sm-0">
-                <a href="{{ url_for('admin_dashboard', status='all') }}" class="btn btn-outline-secondary {% if filter_status == 'all' %}active{% endif %}">All</a>
-                <a href="{{ url_for('admin_dashboard', status='success') }}" class="btn btn-outline-success {% if filter_status == 'success' %}active{% endif %}">Paid</a>
-                <a href="{{ url_for('admin_dashboard', status='cancelled') }}" class="btn btn-outline-danger {% if filter_status == 'cancelled' %}active{% endif %}">Cancelled</a>
-            </div>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Order #</th>
-                        <th>Customer</th>
-                        <th>Phone</th>
-                        <th>Items</th>
-                        <th>Grand Total</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for o in orders %}
-                    <tr>
-                        <td><strong>#{{ o.id }}</strong></td>
-                        <td>{{ o.customer_name }}</td>
-                        <td>{{ o.customer_phone }}</td>
-                        <td><small class="text-muted">{{ o.items_summary }}</small></td>
-                        <td><strong>₹{{ "%.2f"|format(o.grand_total) }}</strong></td>
-                        <td>
-                            {% if "Paid" in o.payment_status %}
-                                <span class="badge bg-success">Paid</span>
-                            {% else %}
-                                <span class="badge bg-danger">Cancelled</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if "Paid" in o.payment_status %}
-                                <a href="{{ url_for('invoice', order_id=o.id) }}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="bi bi-printer me-1"></i>Invoice</a>
-                            {% else %}
-                                <small class="text-muted">{{ o.shipping_notes }}</small>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="7" class="text-center py-4 text-muted">No orders found.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- PRODUCTS MANAGEMENT -->
-    <div class="card mb-4">
-        <div class="card-header bg-white py-3">
-            <h6 class="mb-0 fw-bold"><i class="bi bi-box-seam me-2 text-primary"></i>Add New Product</h6>
-        </div>
-        <div class="card-body">
-            <form action="{{ url_for('add_product') }}" method="POST" enctype="multipart/form-data" class="row g-3">
-                <div class="col-md-4">
-                    <label class="form-label small fw-bold">Product Name</label>
-                    <input type="text" name="name" class="form-control" required placeholder="e.g. Cotton Dhoti">
+        <!-- ORDERS LOG -->
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold text-white">Orders Log</h2>
+                <div class="flex space-x-2 text-xs">
+                    <a href="/admin?status=all" class="px-3 py-1 rounded-lg border {% if filter_status == 'all' %}bg-indigo-600 border-indigo-600 text-white{% else %}border-slate-700 text-slate-400{% endif %}">All</a>
+                    <a href="/admin?status=success" class="px-3 py-1 rounded-lg border {% if filter_status == 'success' %}bg-emerald-600 border-emerald-600 text-white{% else %}border-slate-700 text-slate-400{% endif %}">Paid</a>
+                    <a href="/admin?status=cancelled" class="px-3 py-1 rounded-lg border {% if filter_status == 'cancelled' %}bg-rose-600 border-rose-600 text-white{% else %}border-slate-700 text-slate-400{% endif %}">Cancelled</a>
                 </div>
-                <div class="col-md-4">
-                    <label class="form-label small fw-bold">Category</label>
-                    <select name="category" id="catSelect" class="form-select" required>
-                        <option value="" disabled selected>Select Category</option>
-                        {% for cat in category_tree.keys() %}
-                            <option value="{{ cat }}">{{ cat }}</option>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-slate-300">
+                    <thead class="bg-slate-900/60 uppercase text-[10px] text-slate-400 tracking-wider">
+                        <tr>
+                            <th class="p-3">Order #</th>
+                            <th class="p-3">Customer</th>
+                            <th class="p-3">Phone</th>
+                            <th class="p-3">Total</th>
+                            <th class="p-3">Status</th>
+                            <th class="p-3">Razorpay ID</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-700">
+                        {% for o in orders %}
+                        <tr class="hover:bg-slate-700/30">
+                            <td class="p-3 font-mono font-bold">#{{ o.id }}</td>
+                            <td class="p-3">{{ o.customer_name }}</td>
+                            <td class="p-3">{{ o.customer_phone }}</td>
+                            <td class="p-3 font-bold text-white">₹{{ "%.2f"|format(o.grand_total) }}</td>
+                            <td class="p-3">
+                                {% if 'Paid' in o.payment_status %}
+                                <span class="bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20 font-semibold">Paid</span>
+                                {% else %}
+                                <span class="bg-rose-500/10 text-rose-400 px-2 py-0.5 rounded-full border border-rose-500/20 font-semibold">Failed</span>
+                                {% endif %}
+                            </td>
+                            <td class="p-3 font-mono text-slate-400">{{ o.razorpay_payment_id or '-' }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="p-6 text-center text-slate-500">No orders found.</td>
+                        </tr>
                         {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label small fw-bold">Subcategory</label>
-                    <input type="text" name="subcategory" class="form-control" required placeholder="e.g. Traditional Dhoties">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label small fw-bold">Base Price (₹)</label>
-                    <input type="number" step="0.01" name="single_price" class="form-control" value="100.0" required>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label small fw-bold">Stock Count</label>
-                    <input type="number" name="stock" class="form-control" value="25" required>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label small fw-bold">Badge / Tag</label>
-                    <select name="tag" class="form-select">
-                        <option value="Trending">Trending</option>
-                        <option value="Bestseller">Bestseller</option>
-                        <option value="New Arrival">New Arrival</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label small fw-bold">Product Image</label>
-                    <input type="file" name="product_image" class="form-control" accept="image/*">
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label small fw-bold">Colors (Comma separated)</label>
-                    <input type="text" name="colors" class="form-control" value="White, Cream, Maroon">
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label small fw-bold">Description</label>
-                    <input type="text" name="description" class="form-control" placeholder="Soft pure cotton textile fabric">
-                </div>
-                <div class="col-12">
-                    <button type="submit" class="btn btn-success"><i class="bi bi-plus-circle me-1"></i>Add Product to Store</button>
-                </div>
-            </form>
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div class="table-responsive border-top">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Image</th>
-                        <th>Name</th>
-                        <th>Category</th>
-                        <th>Price</th>
-                        <th>Stock</th>
-                        <th>Tag</th>
-                        <th class="text-end">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for p in products %}
-                    <tr>
-                        <td><img src="{{ p.image }}" alt="{{ p.name }}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 6px;"></td>
-                        <td><strong>{{ p.name }}</strong></td>
-                        <td>{{ p.category }} <small class="text-muted">({{ p.subcategory }})</small></td>
-                        <td>₹{{ "%.2f"|format(p.price) }}</td>
-                        <td>{{ p.stock }}</td>
-                        <td><span class="badge bg-secondary">{{ p.tag }}</span></td>
-                        <td class="text-end">
-                            <form action="{{ url_for('delete_product', product_id=p.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this product?');">
-                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
 
-    <!-- BANNERS MANAGEMENT -->
-    <div class="card mb-4">
-        <div class="card-header bg-white py-3">
-            <h6 class="mb-0 fw-bold"><i class="bi bi-images me-2 text-primary"></i>Hero Promotional Banners</h6>
-        </div>
-        <div class="card-body">
-            <form action="{{ url_for('add_banner') }}" method="POST" enctype="multipart/form-data" class="row g-3">
-                <div class="col-md-3">
-                    <label class="form-label small fw-bold">Badge Title</label>
-                    <input type="text" name="badge" class="form-control" value="Direct from Weavers">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label small fw-bold">Banner Heading</label>
-                    <input type="text" name="title" class="form-control" placeholder="Festive Sarees Offer" required>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label small fw-bold">Button Text</label>
-                    <input type="text" name="button_text" class="form-control" value="Explore Collection">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label small fw-bold">Banner Image</label>
-                    <input type="file" name="banner_image" class="form-control" accept="image/*">
-                </div>
-                <div class="col-12">
-                    <button type="submit" class="btn btn-dark"><i class="bi bi-cloud-arrow-up me-1"></i>Upload Banner</button>
-                </div>
-            </form>
-        </div>
-        <div class="table-responsive border-top">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Preview</th>
-                        <th>Badge</th>
-                        <th>Title</th>
-                        <th class="text-end">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for b in banners %}
-                    <tr>
-                        <td><img src="{{ b.image }}" alt="{{ b.title }}" style="width: 80px; height: 40px; object-fit: cover; border-radius: 4px;"></td>
-                        <td><span class="badge bg-primary">{{ b.badge }}</span></td>
-                        <td><strong>{{ b.title }}</strong></td>
-                        <td class="text-end">
-                            <form action="{{ url_for('delete_banner', banner_id=b.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this banner?');">
-                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-</div>
-
-<script>
-    // Live Clock
-    function updateClock() {
-        const now = new Date();
-        document.getElementById('liveClock').innerText = now.toLocaleTimeString();
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
-
-    // Active Usage Stopwatch
-    const loginTimestamp = {{ login_timestamp }};
-    function updateSessionTimer() {
-        const nowSeconds = Math.floor(Date.now() / 1000);
-        const elapsed = Math.max(0, nowSeconds - loginTimestamp);
-        const mins = Math.floor(elapsed / 60);
-        const secs = elapsed % 60;
-        document.getElementById('sessionTimer').innerText = `${mins}m ${secs}s`;
-    }
-    setInterval(updateSessionTimer, 1000);
-    updateSessionTimer();
-</script>
+    </main>
 </body>
 </html>

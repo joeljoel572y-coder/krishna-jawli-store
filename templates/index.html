@@ -5,58 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ t('store_name') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-    </style>
+    <style> body { font-family: 'Plus Jakarta Sans', sans-serif; } </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
-    <!-- TOP ANNOUNCEMENT BAR -->
-    <div class="bg-indigo-950 text-indigo-200 text-xs py-2 px-4 text-center font-medium border-b border-indigo-900/50">
-        ✨ {{ t('direct_weavers') }} • {{ discount_rate }}% Off Applied at Checkout • Free Shipping on Bulk Orders
-    </div>
-
-    <!-- MAIN NAVIGATION BAR -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-6">
-                <a href="/" class="text-xl font-bold text-indigo-900 tracking-tight flex items-center space-x-2">
-                    <span class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-black">K</span>
-                    <span>{{ t('store_name') }}</span>
+    <!-- TOP PROMO & LANGUAGE BAR -->
+    <div class="bg-indigo-950 text-indigo-200 text-xs py-2 px-4 border-b border-indigo-900/50">
+        <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
+            <span class="truncate">✨ {{ t('direct_weavers') }} • {{ discount_rate }}% Off at Checkout</span>
+            
+            <!-- ALWAYS VISIBLE LANGUAGE TOGGLE -->
+            <div class="flex items-center space-x-1 shrink-0 bg-indigo-900/80 rounded-lg p-0.5 border border-indigo-700 text-[11px] font-bold">
+                <a href="/set-language/en" 
+                   class="px-2 py-0.5 rounded {% if current_lang == 'en' %}bg-white text-indigo-950 shadow{% else %}text-indigo-200 hover:text-white{% endif %}">
+                    EN
+                </a>
+                <a href="/set-language/ta" 
+                   class="px-2 py-0.5 rounded {% if current_lang == 'ta' %}bg-white text-indigo-950 shadow{% else %}text-indigo-200 hover:text-white{% endif %}">
+                    தமிழ்
                 </a>
             </div>
+        </div>
+    </div>
 
-            <!-- RIGHT ACTION CONTROLS -->
+    <!-- MAIN HEADER -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <a href="/" class="text-lg sm:text-xl font-bold text-indigo-900 flex items-center space-x-2">
+                <span class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-black">K</span>
+                <span class="truncate">{{ t('store_name') }}</span>
+            </a>
+
             <div class="flex items-center space-x-3">
-                <!-- BILINGUAL LANGUAGE SWITCHER -->
-                <div class="flex items-center bg-slate-100 rounded-lg p-1 border border-slate-200 text-xs font-semibold">
-                    <a href="/set-language/en" 
-                       class="px-2.5 py-1 rounded-md transition {% if current_lang == 'en' %}bg-indigo-600 text-white shadow-sm{% else %}text-slate-600 hover:text-indigo-600{% endif %}">
-                        English
-                    </a>
-                    <a href="/set-language/ta" 
-                       class="px-2.5 py-1 rounded-md transition {% if current_lang == 'ta' %}bg-indigo-600 text-white shadow-sm{% else %}text-slate-600 hover:text-indigo-600{% endif %}">
-                        தமிழ்
-                    </a>
-                </div>
-
-                <!-- CART LINK WITH BADGE -->
                 <a href="/cart" class="relative inline-flex items-center p-2 text-slate-700 hover:text-indigo-600 transition">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                     </svg>
                     {% if cart_count > 0 %}
-                    <span class="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-rose-600 rounded-full">
+                    <span class="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold text-white bg-rose-600 rounded-full">
                         {{ cart_count }}
                     </span>
                     {% endif %}
                 </a>
 
-                <!-- ADMIN ACCESS LINK -->
-                <a href="/admin/login" class="text-xs text-slate-500 hover:text-indigo-600 font-medium px-2 py-1 rounded-md border border-slate-200">
+                <a href="/admin/login" class="text-xs text-slate-600 hover:text-indigo-600 font-semibold px-2.5 py-1.5 rounded-lg border border-slate-300">
                     {{ t('admin') }}
                 </a>
             </div>
@@ -78,7 +71,7 @@
         </div>
     </nav>
 
-    <!-- HERO CAROUSEL / PROMOTIONAL BANNERS -->
+    <!-- HERO CAROUSEL / BANNERS -->
     {% if banners and not selected_category %}
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -103,60 +96,35 @@
 
     <!-- PRODUCT CATALOG -->
     <main id="catalog" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
-
         {% if selected_category %}
-            <!-- CATEGORY FILTER VIEW -->
             <div class="mb-6">
                 <h1 class="text-2xl font-bold text-slate-900">{{ t(selected_category) }}</h1>
-                {% if subcategories %}
-                <div class="flex flex-wrap gap-2 mt-3">
-                    {% for sub in subcategories %}
-                    <a href="/?category={{ selected_category|urlencode }}&subcategory={{ sub|urlencode }}#catalog" 
-                       class="text-xs px-3 py-1 rounded-lg border {% if selected_subcategory == sub %}bg-indigo-600 border-indigo-600 text-white{% else %}border-slate-300 text-slate-600 hover:border-indigo-600{% endif %}">
-                        {{ sub }}
-                    </a>
-                    {% endfor %}
-                </div>
-                {% endif %}
             </div>
-
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
                 {% for prod in filtered_products %}
-                    {% include '_product_card.html' ignore missing %}
-                    {% if not product_card_included %}
-                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col">
-                        <img src="{{ prod.image }}" alt="{{ prod.name }}" class="w-full h-48 object-cover">
-                        <div class="p-4 flex flex-col flex-1">
-                            <span class="text-[11px] font-semibold text-indigo-600 uppercase tracking-wider">{{ t(prod.category) }}</span>
-                            <h3 class="font-bold text-slate-900 text-sm mt-1 line-clamp-1">{{ prod.name }}</h3>
-                            <p class="text-xs text-slate-500 mt-1 line-clamp-2">{{ prod.description }}</p>
-                            <div class="mt-auto pt-3 flex items-center justify-between">
-                                <span class="text-base font-bold text-slate-900">₹{{ "%.2f"|format(prod.price) }}</span>
-                                <a href="/product/{{ prod.id }}" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-3 py-1.5 rounded-lg transition">
-                                    {{ t('buy_now') }}
-                                </a>
-                            </div>
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm flex flex-col">
+                    <img src="{{ prod.image }}" alt="{{ prod.name }}" class="w-full h-48 object-cover">
+                    <div class="p-4 flex flex-col flex-1">
+                        <span class="text-[11px] font-semibold text-indigo-600 uppercase tracking-wider">{{ t(prod.category) }}</span>
+                        <h3 class="font-bold text-slate-900 text-sm mt-1 line-clamp-1">{{ prod.name }}</h3>
+                        <div class="mt-auto pt-3 flex items-center justify-between">
+                            <span class="text-base font-bold text-slate-900">₹{{ "%.2f"|format(prod.price) }}</span>
+                            <a href="/product/{{ prod.id }}" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-3 py-1.5 rounded-lg transition">
+                                {{ t('buy_now') }}
+                            </a>
                         </div>
                     </div>
-                    {% endif %}
+                </div>
                 {% else %}
-                    <div class="col-span-full py-12 text-center text-slate-500 text-sm">
-                        No products listed in this section yet.
-                    </div>
+                <div class="col-span-full py-12 text-center text-slate-500 text-sm">No products in this category.</div>
                 {% endfor %}
             </div>
-
         {% else %}
-            <!-- DEFAULT DASHBOARD VIEW -->
-            
-            <!-- SECTION 1: TRENDING -->
             <div class="mb-10">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xl font-bold text-slate-900">{{ t('trending') }}</h2>
-                </div>
+                <h2 class="text-xl font-bold text-slate-900 mb-4">{{ t('trending') }}</h2>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
                     {% for prod in trending %}
-                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col">
+                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm flex flex-col">
                         <img src="{{ prod.image }}" alt="{{ prod.name }}" class="w-full h-48 object-cover">
                         <div class="p-4 flex flex-col flex-1">
                             <span class="text-[11px] font-semibold text-indigo-600 uppercase tracking-wider">{{ t(prod.category) }}</span>
@@ -172,38 +140,9 @@
                     {% endfor %}
                 </div>
             </div>
-
-            <!-- SECTION 2: BESTSELLERS -->
-            {% if bestsellers %}
-            <div class="mb-10">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xl font-bold text-slate-900">{{ t('bestsellers') }}</h2>
-                </div>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-                    {% for prod in bestsellers %}
-                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col">
-                        <img src="{{ prod.image }}" alt="{{ prod.name }}" class="w-full h-48 object-cover">
-                        <div class="p-4 flex flex-col flex-1">
-                            <span class="text-[11px] font-semibold text-indigo-600 uppercase tracking-wider">{{ t(prod.category) }}</span>
-                            <h3 class="font-bold text-slate-900 text-sm mt-1 line-clamp-1">{{ prod.name }}</h3>
-                            <div class="mt-auto pt-3 flex items-center justify-between">
-                                <span class="text-base font-bold text-slate-900">₹{{ "%.2f"|format(prod.price) }}</span>
-                                <a href="/product/{{ prod.id }}" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-3 py-1.5 rounded-lg transition">
-                                    {{ t('buy_now') }}
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
-
         {% endif %}
-
     </main>
 
-    <!-- FOOTER -->
     <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
         © 2026 {{ t('store_name') }}. All rights reserved. Handcrafted textiles direct from weavers.
     </footer>
