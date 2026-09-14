@@ -1,9 +1,6 @@
 import os
 import json
 import time
-import random
-import smtplib
-from email.mime.text import MIMEText
 from functools import wraps
 from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
@@ -19,29 +16,9 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 db = SQLAlchemy(app)
 
-# --- SECURE ADMIN EMAIL CONFIGURATION ---
+# --- ADMIN CREDENTIALS ---
 ADMIN_EMAIL = "joeljoel572y@gmail.com"
-SENDER_EMAIL = "joeljoel572y@gmail.com"
-SENDER_APP_PASSWORD = "isfr bxlr haex xdtp"
-
-def send_otp_email(to_email, otp_code):
-    subject = "Krishna Jawli Store - Admin Login OTP"
-    body = f"""Hello Joel,
-
-Your 6-digit login verification code for the Krishna Jawli Store Admin Dashboard is:
-
-{otp_code}
-
-This code is valid for 5 minutes. If you did not initiate this request, no action is needed.
-"""
-    msg = MIMEText(body)
-    msg['Subject'] = subject
-    msg['From'] = SENDER_EMAIL
-    msg['To'] = to_email
-
-    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
-        server.login(SENDER_EMAIL, SENDER_APP_PASSWORD.replace(" ", ""))
-        server.send_message(msg)
+ADMIN_PASSWORD = "krishna@jawli2026"
 
 # --- CONFIGURED RAZORPAY TEST CREDENTIALS ---
 RAZORPAY_KEY_ID = "rzp_test_TbXzNlIZrtPYMB"
@@ -213,7 +190,7 @@ def seed_initial_data():
         db.session.add_all([sample1, sample2])
     db.session.commit()
 
-# --- ADMIN AUTHENTICATION WITH EMAIL OTP ---
+# --- ADMIN AUTHENTICATION ---
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -227,39 +204,9 @@ def admin_login():
     error = None
     if request.method == 'POST':
         email = request.form.get('email', '').strip().lower()
-        if email == ADMIN_EMAIL.lower():
-            otp = f"{random.randint(100000, 999999)}"
-            session['admin_otp'] = otp
-            session['admin_otp_expiry'] = time.time() + 300
-            session['pending_admin_email'] = email
+        pwd = request.form.get('password', '').strip()
 
-            try:
-                send_otp_email(ADMIN_EMAIL, otp)
-                return redirect(url_for('admin_verify_otp'))
-            except Exception as e:
-                error = f"Error delivering OTP to Gmail: {e}"
-        else:
-            error = "Access Denied: Unrecognized administrator email."
-    return render_template('admin_login.html', error=error)
-
-@app.route('/admin/verify-otp', methods=['GET', 'POST'])
-def admin_verify_otp():
-    error = None
-    if 'pending_admin_email' not in session:
-        return redirect(url_for('admin_login'))
-
-    if request.method == 'POST':
-        entered_otp = request.form.get('otp', '').strip()
-        actual_otp = session.get('admin_otp')
-        expiry = session.get('admin_otp_expiry', 0)
-
-        if time.time() > expiry:
-            error = "Verification code expired (5-minute limit). Please request a new code."
-        elif entered_otp == actual_otp:
-            session.pop('admin_otp', None)
-            session.pop('admin_otp_expiry', None)
-            session.pop('pending_admin_email', None)
-
+        if email == ADMIN_EMAIL.lower() and pwd == ADMIN_PASSWORD:
             session['admin_logged_in'] = True
             session['login_timestamp'] = time.time()
             session['login_time_str'] = time.strftime('%d-%b-%Y, %I:%M %p')
@@ -272,9 +219,8 @@ def admin_verify_otp():
 
             return redirect(url_for('admin_dashboard'))
         else:
-            error = "Invalid 6-digit code. Check your Gmail inbox."
-
-    return render_template('admin_verify_otp.html', error=error)
+            error = "Invalid admin email or password."
+    return render_template('admin_login.html', error=error)
 
 @app.route('/admin/logout')
 def admin_logout():

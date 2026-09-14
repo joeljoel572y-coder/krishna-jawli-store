@@ -10,7 +10,7 @@
     <div class="bg-slate-800 border border-slate-700 rounded-2xl p-8 max-w-md w-full shadow-2xl">
         <div class="text-center mb-8">
             <h1 class="text-2xl font-bold text-white tracking-wide">Krishna Jawli Store</h1>
-            <p class="text-indigo-400 text-sm mt-1">Admin Portal • Email OTP Login</p>
+            <p class="text-indigo-400 text-sm mt-1">Admin Portal • Secure Access</p>
         </div>
 
         {% if error %}
@@ -19,16 +19,22 @@
         </div>
         {% endif %}
 
-        <form method="POST" action="/admin/login" class="space-y-6">
+        <form method="POST" action="/admin/login" class="space-y-5">
             <div>
-                <label class="block text-slate-300 text-xs font-semibold uppercase tracking-wider mb-2">Admin Email Address</label>
+                <label class="block text-slate-300 text-xs font-semibold uppercase tracking-wider mb-2">Admin Email</label>
                 <input type="email" name="email" required placeholder="joeljoel572y@gmail.com"
+                    class="w-full bg-slate-950/60 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500">
+            </div>
+
+            <div>
+                <label class="block text-slate-300 text-xs font-semibold uppercase tracking-wider mb-2">Password</label>
+                <input type="password" name="password" required placeholder="••••••••••••"
                     class="w-full bg-slate-950/60 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500">
             </div>
 
             <button type="submit" 
                 class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-6 rounded-xl transition duration-200">
-                Send 6-Digit OTP
+                Log In to Dashboard
             </button>
         </form>
     </div>
