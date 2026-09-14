@@ -26,6 +26,7 @@ RAZORPAY_KEY_SECRET = "Pb5k61Ku05Evqc27Heebrx3U"
 
 razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
 
+# --- TEXTILE CATEGORY DATA ---
 CATEGORY_DATA = {
     "Handloom Products": ["Handloom Sarees", "Cotton Sarees", "Traditional Towels", "Temple Towels", "Handloom Dhoties"],
     "Home Textiles": ["Bedsheets", "Pillow Covers", "Curtains", "Blankets", "Sofa Covers"],
@@ -51,6 +52,100 @@ CATEGORY_DATA = {
     "Inskirt": ["Cotton Inskirt", "Stretch Inskirt", "Saree Inskirt"],
     "Leggings": ["Cotton Leggings", "Ankle Leggings", "Churidar Leggings"],
     "Shirts": ["Casual Shirts", "Formal Shirts", "Cotton Shirts"]
+}
+
+# --- BILINGUAL TRANSLATION DICTIONARY ---
+TRANSLATIONS = {
+    "en": {
+        "store_name": "Krishna Jawli Store",
+        "home": "Home",
+        "categories": "Categories",
+        "cart": "Cart",
+        "admin": "Admin",
+        "trending": "Trending Collection",
+        "bestsellers": "Bestsellers",
+        "new_arrivals": "New Arrivals",
+        "view_catalog": "Explore Collection",
+        "shop_now": "Shop Now",
+        "add_to_cart": "Add to Cart",
+        "buy_now": "Buy Now",
+        "in_stock": "In Stock",
+        "empty_cart": "Your cart is currently empty.",
+        "subtotal": "Subtotal",
+        "checkout": "Proceed to Checkout",
+        "view_all": "View All",
+        "direct_weavers": "Direct from Weavers",
+        # Category Names
+        "Handloom Products": "Handloom Products",
+        "Home Textiles": "Home Textiles",
+        "Kerchiefs for Men & Women": "Kerchiefs for Men & Women",
+        "Kids & Babywears": "Kids & Babywears",
+        "Kids Fashion": "Kids Fashion",
+        "Kids Innerwears": "Kids Innerwears",
+        "Lungies": "Lungies",
+        "Mens Fashion": "Mens Fashion",
+        "Mens Innerwear": "Mens Innerwear",
+        "Women Fashion": "Women Fashion",
+        "Women Innerwears": "Women Innerwears",
+        "Pooja Textiles": "Pooja Textiles",
+        "Towels": "Towels",
+        "Nighties": "Nighties",
+        "New Born Baby Dress": "New Born Baby Dress",
+        "New Born Baby Gift Boxes": "Baby Gift Boxes",
+        "Blouse Piece": "Blouse Piece",
+        "Lining for Blouse": "Lining for Blouse",
+        "Summer Products for Men & Women": "Summer Wear",
+        "Summer Products for Kids": "Kids Summer Products",
+        "Old Age Products": "Old Age Comfort Wear",
+        "Inskirt": "Inskirts",
+        "Leggings": "Leggings",
+        "Shirts": "Shirts"
+    },
+    "ta": {
+        "store_name": "கிருஷ்ணா ஜவ்ளி ஸ்டோர்",
+        "home": "முகப்பு",
+        "categories": "துணி பிரிவுகள்",
+        "cart": "கூடை",
+        "admin": "நிர்வாகம்",
+        "trending": "டிரெண்டிங் ஆடைகள்",
+        "bestsellers": "அதிகம் விற்பனையானவை",
+        "new_arrivals": "புதிய வரவுகள்",
+        "view_catalog": "ஆடைகளை பார்க்க",
+        "shop_now": "உடனே வாங்க",
+        "add_to_cart": "கார்ட்டில் சேர்",
+        "buy_now": "உடனே வாங்கு",
+        "in_stock": "இருப்பில் உள்ளது",
+        "empty_cart": "உங்கள் கூடையில் துணிகள் எதுவும் இல்லை.",
+        "subtotal": "மொத்த தொகை",
+        "checkout": "ஆர்டர் செய்ய தொடரவும்",
+        "view_all": "அனைத்தையும் பார்க்க",
+        "direct_weavers": "நெசவாளர்களிடமிருந்து நேரடியாக",
+        # Category Names
+        "Handloom Products": "கைத்தறி ரகங்கள்",
+        "Home Textiles": "ஹோம் டெக்ஸ்டைல்ஸ்",
+        "Kerchiefs for Men & Women": "கைக்குட்டைகள்",
+        "Kids & Babywears": "குழந்தைகள் ஆடைகள்",
+        "Kids Fashion": "சிறுவர் பேஷன்",
+        "Kids Innerwears": "சிறுவர் உள்ளாடைகள்",
+        "Lungies": "பாரம்பரிய லுங்கிகள்",
+        "Mens Fashion": "ஆண்கள் பேஷன்",
+        "Mens Innerwear": "ஆண்கள் உள்ளாடைகள்",
+        "Women Fashion": "பெண்கள் பேஷன்",
+        "Women Innerwears": "பெண்கள் உள்ளாடைகள்",
+        "Pooja Textiles": "பூஜை துணிகள்",
+        "Towels": "துண்டுகள்",
+        "Nighties": "நைட்டிகள்",
+        "New Born Baby Dress": "பிறந்த குழந்தை உடைகள்",
+        "New Born Baby Gift Boxes": "குழந்தை கிஃப்ட் பாக்ஸ்",
+        "Blouse Piece": "பிளவுஸ் பிட்",
+        "Lining for Blouse": "லைனிங் துணிகள்",
+        "Summer Products for Men & Women": "கோடைகால ஆடைகள்",
+        "Summer Products for Kids": "குழந்தைகள் கோடை ஆடைகள்",
+        "Old Age Products": "முதியோர் வசதி உடைகள்",
+        "Inskirt": "உள்பாவாடை",
+        "Leggings": "லெக்கின்ஸ்",
+        "Shirts": "சட்டைகள்"
+    }
 }
 
 def allowed_file(filename):
@@ -123,17 +218,32 @@ def get_settings():
         db.session.commit()
     return setting
 
+@app.route('/set-language/<lang>')
+def set_language(lang):
+    if lang in ['en', 'ta']:
+        session['lang'] = lang
+    return redirect(request.referrer or url_for('home'))
+
 @app.context_processor
 def inject_globals():
     cart = session.get('cart', {})
     total_count = sum(item['quantity'] for item in cart.values())
     settings = get_settings()
+    current_lang = session.get('lang', 'en')
+
+    def t(key):
+        if not key:
+            return ""
+        return TRANSLATIONS.get(current_lang, {}).get(key, key)
+
     return dict(
         cart_count=total_count,
         category_tree=CATEGORY_DATA,
         cgst_rate=settings.cgst_percent,
         sgst_rate=settings.sgst_percent,
-        discount_rate=settings.discount_percent
+        discount_rate=settings.discount_percent,
+        current_lang=current_lang,
+        t=t
     )
 
 def seed_initial_data():

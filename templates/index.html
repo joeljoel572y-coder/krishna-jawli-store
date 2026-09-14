@@ -1,512 +1,212 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ current_lang }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Krishna Jawli Store | Trichy's Premier Textile & Handloom Destination</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>{{ t('store_name') }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --brand-dark: #131921;
-            --brand-navy: #1f2937;
-            --brand-accent: #f59e0b;
-            --deal-red: #dc2626;
-            --soft-bg: #f8fafc;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--soft-bg);
-            color: #1e293b;
-        }
-
-        .top-banner {
-            background: linear-gradient(90deg, #b91c1c, #dc2626);
-            color: #ffffff;
-            font-size: 0.84rem;
-            font-weight: 600;
-            padding: 7px 0;
-        }
-
-        .navbar-main { background-color: var(--brand-dark); padding: 12px 0; }
-        .brand-logo { font-size: 1.35rem; font-weight: 800; color: #ffffff; text-decoration: none; }
-        .brand-logo:hover { color: var(--brand-accent); }
-
-        .navbar-sub { background-color: var(--brand-navy); border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding: 8px 0; }
-        .nav-pill-btn { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #ffffff; font-size: 0.9rem; font-weight: 600; padding: 6px 16px; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
-        .nav-pill-btn:hover, .nav-pill-btn.active-all { background-color: var(--brand-accent); color: #000; border-color: var(--brand-accent); }
-
-        /* Dynamic Slideshow Height & Alignment */
-        .hero-slide {
-            height: 420px;
-            background-size: cover;
-            background-position: center;
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-        @media (max-width: 768px) {
-            .hero-slide { height: 320px; }
-        }
-
-        .hero-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(90deg, rgba(15, 23, 42, 0.92) 0%, rgba(15, 23, 42, 0.65) 60%, rgba(15, 23, 42, 0.3) 100%);
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 2;
-            max-width: 650px;
-        }
-
-        .trust-badge-bar { background: #ffffff; border-bottom: 1px solid #e2e8f0; padding: 16px 0; }
-        .trust-item { display: flex; align-items: center; gap: 12px; }
-        .trust-icon { font-size: 1.8rem; color: var(--brand-accent); }
-
-        .product-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .product-card:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08); }
-        .product-img-box { position: relative; width: 100%; height: 210px; background-color: #f1f5f9; overflow: hidden; }
-        .product-img-box img { width: 100%; height: 100%; object-fit: cover; }
-        .badge-discount-tag { position: absolute; top: 10px; left: 10px; background-color: var(--deal-red); color: #fff; font-size: 0.72rem; font-weight: 700; padding: 4px 8px; border-radius: 4px; }
-
-        .btn-cart-sm { background-color: #ffd814; border: 1px solid #fcd200; color: #0f1111; font-weight: 600; font-size: 0.8rem; border-radius: 6px; }
-        .btn-cart-sm:hover { background-color: #f7ca00; }
-        .btn-buy-sm { background-color: #ffa41c; border: 1px solid #ff8f00; color: #0f1111; font-weight: 700; font-size: 0.8rem; border-radius: 6px; display: block; text-align: center; text-decoration: none; }
-        .btn-buy-sm:hover { background-color: #f08804; color: #0f1111; }
-
-        .branch-card { background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); overflow: hidden; }
-        .branch-header { padding: 16px 20px; border-bottom: 1px solid #f1f5f9; color: white; }
-        .branch-header.main-branch { background: linear-gradient(135deg, #1e293b, #0f172a); }
-        .branch-header.branch-two { background: linear-gradient(135deg, #334155, #1e293b); }
-        .cart-counter { background-color: var(--brand-accent); color: #000; font-size: 0.78rem; font-weight: 800; padding: 2px 7px; border-radius: 50%; margin-left: 4px; }
-        .whatsapp-float { position: fixed; bottom: 24px; right: 20px; background-color: #25d366; color: white; border-radius: 50px; padding: 12px 22px; font-weight: 700; text-decoration: none; z-index: 1050; box-shadow: 0 6px 18px rgba(37, 211, 102, 0.4); display: flex; align-items: center; gap: 8px; }
-        .whatsapp-float:hover { color: white; background-color: #20ba5a; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
-    <div class="top-banner text-center">
-        <div class="container">
-            <i class="fa-solid fa-gift me-2 text-warning"></i>
-            SPECIAL STORE BENEFIT: Compulsory Customer Discount – <strong>{{ discount_rate }}% OFF</strong> Applied Automatically at Checkout!
-        </div>
+    <!-- TOP ANNOUNCEMENT BAR -->
+    <div class="bg-indigo-950 text-indigo-200 text-xs py-2 px-4 text-center font-medium border-b border-indigo-900/50">
+        ✨ {{ t('direct_weavers') }} • {{ discount_rate }}% Off Applied at Checkout • Free Shipping on Bulk Orders
     </div>
 
-    <header class="navbar-main">
-        <div class="container d-flex align-items-center justify-content-between flex-wrap gap-3">
-            <a href="/" class="brand-logo d-flex align-items-center gap-2">
-                <i class="fa-solid fa-shirt text-warning"></i>
-                <span>KRISHNA JAWLI STORE</span>
-            </a>
-
-            <div class="input-group flex-grow-1 mx-lg-4" style="max-width: 520px;">
-                <input type="text" class="form-control border-0" placeholder="Search Sarees, Lungies, Towels, Innerwear, Babywear...">
-                <button class="btn btn-warning fw-bold px-3" type="button">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </button>
+    <!-- MAIN NAVIGATION BAR -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-6">
+                <a href="/" class="text-xl font-bold text-indigo-900 tracking-tight flex items-center space-x-2">
+                    <span class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-black">K</span>
+                    <span>{{ t('store_name') }}</span>
+                </a>
             </div>
 
-            <div class="d-flex align-items-center gap-3">
-                <a href="https://wa.me/916380994544" target="_blank" class="btn btn-outline-light btn-sm fw-semibold d-none d-sm-inline-flex align-items-center gap-2">
-                    <i class="fa-brands fa-whatsapp text-success fs-5"></i> 6380994544
+            <!-- RIGHT ACTION CONTROLS -->
+            <div class="flex items-center space-x-3">
+                <!-- BILINGUAL LANGUAGE SWITCHER -->
+                <div class="flex items-center bg-slate-100 rounded-lg p-1 border border-slate-200 text-xs font-semibold">
+                    <a href="/set-language/en" 
+                       class="px-2.5 py-1 rounded-md transition {% if current_lang == 'en' %}bg-indigo-600 text-white shadow-sm{% else %}text-slate-600 hover:text-indigo-600{% endif %}">
+                        English
+                    </a>
+                    <a href="/set-language/ta" 
+                       class="px-2.5 py-1 rounded-md transition {% if current_lang == 'ta' %}bg-indigo-600 text-white shadow-sm{% else %}text-slate-600 hover:text-indigo-600{% endif %}">
+                        தமிழ்
+                    </a>
+                </div>
+
+                <!-- CART LINK WITH BADGE -->
+                <a href="/cart" class="relative inline-flex items-center p-2 text-slate-700 hover:text-indigo-600 transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    {% if cart_count > 0 %}
+                    <span class="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-rose-600 rounded-full">
+                        {{ cart_count }}
+                    </span>
+                    {% endif %}
                 </a>
-                <a href="/cart" class="btn btn-warning fw-bold btn-sm d-flex align-items-center">
-                    <i class="fa-solid fa-cart-shopping me-1"></i> Cart
-                    <span id="navCartBadge" class="cart-counter">{{ cart_count }}</span>
+
+                <!-- ADMIN ACCESS LINK -->
+                <a href="/admin/login" class="text-xs text-slate-500 hover:text-indigo-600 font-medium px-2 py-1 rounded-md border border-slate-200">
+                    {{ t('admin') }}
                 </a>
             </div>
         </div>
     </header>
 
-    <div class="navbar-sub">
-        <div class="container d-flex align-items-center gap-2 flex-wrap">
-            <a href="/#catalog" class="nav-pill-btn {% if not selected_category %}active-all{% endif %}">
-                <i class="fa-solid fa-border-all"></i> All Products
+    <!-- HORIZONTAL CATEGORY NAVIGATION STRIP -->
+    <nav class="bg-white border-b border-slate-200 overflow-x-auto">
+        <div class="max-w-7xl mx-auto px-4 py-2.5 flex space-x-2 text-xs font-medium whitespace-nowrap">
+            <a href="/" class="px-3 py-1.5 rounded-full transition {% if not selected_category %}bg-indigo-600 text-white{% else %}bg-slate-100 text-slate-700 hover:bg-slate-200{% endif %}">
+                {{ t('view_all') }}
             </a>
-            <button class="nav-pill-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#categoryOffcanvas">
-                <i class="fa-solid fa-layer-group text-warning"></i> Browse 24 Categories
-                <i class="fa-solid fa-chevron-right small ms-1"></i>
-            </button>
+            {% for cat in category_tree.keys() %}
+            <a href="/?category={{ cat|urlencode }}#catalog" 
+               class="px-3 py-1.5 rounded-full transition {% if selected_category == cat %}bg-indigo-600 text-white{% else %}bg-slate-100 text-slate-700 hover:bg-slate-200{% endif %}">
+                {{ t(cat) }}
+            </a>
+            {% endfor %}
         </div>
-    </div>
+    </nav>
 
-    <!-- Category Drawer -->
-    <div class="offcanvas offcanvas-start" tabindex="-1" id="categoryOffcanvas" style="width: 440px; max-width: 90vw;">
-        <div class="offcanvas-header bg-dark text-white py-3">
-            <h5 class="offcanvas-title fw-bold">
-                <i class="fa-solid fa-list-ul text-warning me-2"></i> All Store Categories
-            </h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
-        </div>
-        <div class="offcanvas-body p-3 bg-light">
-            <div class="accordion" id="catAccordion">
-                {% for cat_name, subcats in category_tree.items() %}
-                <div class="accordion-item mb-2 border rounded overflow-hidden">
-                    <h2 class="accordion-header" id="heading-{{ loop.index }}">
-                        <button class="accordion-button collapsed fw-bold text-dark py-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ loop.index }}">
-                            {{ cat_name }}
-                        </button>
-                    </h2>
-                    <div id="collapse-{{ loop.index }}" class="accordion-collapse collapse" data-bs-parent="#catAccordion">
-                        <div class="accordion-body p-0 bg-white">
-                            <a href="/?category={{ cat_name|urlencode }}#catalog" class="d-block p-2 px-3 fw-bold text-primary text-decoration-none border-bottom bg-light">
-                                &rsaquo; View All {{ cat_name }}
-                            </a>
-                            {% for subcat in subcats %}
-                            <a href="/?category={{ cat_name|urlencode }}&subcategory={{ subcat|urlencode }}#catalog" class="d-block p-2 px-3 text-secondary text-decoration-none border-bottom small">
-                                &bull; {{ subcat }}
-                            </a>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-
-    <!-- DYNAMIC SLIDESHOW HERO BANNER (MANAGED IN ADMIN) -->
-    <div id="homeHeroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
-        <div class="carousel-indicators">
+    <!-- HERO CAROUSEL / PROMOTIONAL BANNERS -->
+    {% if banners and not selected_category %}
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             {% for b in banners %}
-            <button type="button" data-bs-target="#homeHeroCarousel" data-bs-slide-to="{{ loop.index0 }}" class="{% if loop.first %}active{% endif %}"></button>
-            {% endfor %}
-        </div>
-
-        <div class="carousel-inner">
-            {% for b in banners %}
-            <div class="carousel-item {% if loop.first %}active{% endif %} hero-slide" style="background-image: url('{{ b.image }}');">
-                <div class="hero-overlay"></div>
-                <div class="container">
-                    <div class="hero-content text-white">
-                        <span class="badge bg-warning text-dark px-3 py-2 mb-3 fw-bold text-uppercase">{{ b.badge }}</span>
-                        <h1 class="display-5 fw-bold mb-3">{{ b.title }}</h1>
-                        <p class="lead mb-4 text-light">{{ b.subtitle }}</p>
-                        <div class="d-flex gap-3">
-                            <a href="{{ b.link_url }}" class="btn btn-warning fw-bold px-4 py-2">{{ b.button_text }}</a>
-                            <a href="https://wa.me/916380994544?text=Hi%20Krishna%20Jawli%20Store" target="_blank" class="btn btn-outline-light fw-bold px-4 py-2">
-                                <i class="fa-brands fa-whatsapp me-1"></i> WhatsApp Order
-                            </a>
-                        </div>
-                    </div>
+            <div class="relative overflow-hidden rounded-2xl bg-slate-900 text-white h-72 shadow-lg flex items-end p-6 group">
+                <img src="{{ b.image }}" alt="{{ b.title }}" class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-105 transition duration-500">
+                <div class="relative z-10">
+                    <span class="inline-block bg-indigo-600 text-white text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider mb-2">
+                        {{ b.badge }}
+                    </span>
+                    <h2 class="text-xl sm:text-2xl font-bold leading-tight">{{ b.title }}</h2>
+                    <p class="text-slate-200 text-xs sm:text-sm mt-1 line-clamp-2">{{ b.subtitle }}</p>
+                    <a href="{{ b.link_url }}" class="inline-block mt-3 bg-white text-slate-900 font-semibold text-xs px-4 py-2 rounded-xl hover:bg-indigo-50 transition">
+                        {{ b.button_text }}
+                    </a>
                 </div>
             </div>
             {% endfor %}
-        </div>
-
-        <button class="carousel-control-prev" type="button" data-bs-target="#homeHeroCarousel" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon"></span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#homeHeroCarousel" data-bs-slide="next">
-            <span class="carousel-control-next-icon"></span>
-        </button>
-    </div>
-
-    <!-- Trust Highlights Bar -->
-    <div class="trust-badge-bar">
-        <div class="container">
-            <div class="row g-3 text-center text-md-start">
-                <div class="col-6 col-md-3">
-                    <div class="trust-item justify-content-center justify-content-md-start">
-                        <i class="fa-solid fa-medal trust-icon"></i>
-                        <div>
-                            <div class="fw-bold text-dark">100% Genuine Fabric</div>
-                            <small class="text-muted">Authentic cotton & handloom</small>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="trust-item justify-content-center justify-content-md-start">
-                        <i class="fa-solid fa-tags trust-icon"></i>
-                        <div>
-                            <div class="fw-bold text-dark">Wholesale Pricing</div>
-                            <small class="text-muted">Compulsory 5% customer discount</small>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="trust-item justify-content-center justify-content-md-start">
-                        <i class="fa-solid fa-truck-fast trust-icon"></i>
-                        <div>
-                            <div class="fw-bold text-dark">Fast Trichy Delivery</div>
-                            <small class="text-muted">Direct dispatch from godown</small>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="trust-item justify-content-center justify-content-md-start">
-                        <i class="fa-solid fa-shield-halved trust-icon"></i>
-                        <div>
-                            <div class="fw-bold text-dark">Razorpay Verified</div>
-                            <small class="text-muted">Secure UPI, Cards & NetBanking</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Product Catalog Section -->
-    <div class="container my-5" id="catalog">
-        {% if selected_category or selected_subcategory %}
-        <div class="border-bottom pb-3 mb-4">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
-                <div>
-                    <span class="text-muted small text-uppercase fw-bold">Selected Category</span>
-                    <h3 class="fw-bold mb-0 text-dark">
-                        {{ selected_category }}
-                        {% if selected_subcategory %}
-                        <span class="text-muted fs-5 fw-normal">&rsaquo;</span> <span class="text-primary">{{ selected_subcategory }}</span>
-                        {% endif %}
-                    </h3>
-                </div>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-outline-primary btn-sm" data-bs-toggle="offcanvas" data-bs-target="#categoryOffcanvas">
-                        <i class="fa-solid fa-layer-group me-1"></i> Change Category
-                    </button>
-                    <a href="/#catalog" class="btn btn-outline-secondary btn-sm">Show All Products</a>
-                </div>
-            </div>
-
-            {% if subcategories %}
-            <div class="d-flex flex-wrap gap-2 mt-3 pt-2 border-top">
-                <a href="/?category={{ selected_category|urlencode }}#catalog" class="btn btn-sm btn-outline-dark rounded-pill {% if not selected_subcategory %}active{% endif %}">
-                    All {{ selected_category }}
-                </a>
-                {% for sc in subcategories %}
-                <a href="/?category={{ selected_category|urlencode }}&subcategory={{ sc|urlencode }}#catalog" class="btn btn-sm btn-outline-dark rounded-pill {% if selected_subcategory == sc %}active{% endif %}">
-                    {{ sc }}
-                </a>
-                {% endfor %}
-            </div>
-            {% endif %}
-        </div>
-
-        <div class="row g-3 mb-5">
-            {% for item in filtered_products %}
-            <div class="col-6 col-md-4 col-lg-3">
-                <div class="product-card h-100 d-flex flex-column justify-content-between">
-                    <div>
-                        <div class="product-img-box">
-                            <span class="badge-discount-tag">{{ discount_rate }}% OFF</span>
-                            <a href="/product/{{ item.id }}">
-                                <img src="{{ item.image }}" alt="{{ item.name }}" onerror="this.src='https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400'">
-                            </a>
-                        </div>
-                        <div class="p-3">
-                            <span class="badge bg-light text-dark border mb-1 small">{{ item.subcategory }}</span>
-                            <a href="/product/{{ item.id }}" class="text-decoration-none">
-                                <h6 class="fw-bold mb-1 text-dark text-truncate">{{ item.name }}</h6>
-                            </a>
-                            <p class="text-muted small mb-0 text-truncate">{{ item.description }}</p>
-                        </div>
-                    </div>
-                    <div class="p-3 pt-0">
-                        <div class="fs-5 fw-bold text-dark mb-2">₹{{ "%.2f"|format(item.price) }}</div>
-                        <div class="d-grid gap-1">
-                            <button type="button" onclick="silentAddToCart({{ item.id }}, this)" class="btn btn-cart-sm py-1">
-                                <i class="fa-solid fa-cart-plus me-1"></i> Add to Cart
-                            </button>
-                            <a href="/product/{{ item.id }}" class="btn btn-buy-sm py-1">
-                                <i class="fa-solid fa-bolt me-1"></i> Buy Now
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% else %}
-            <div class="col-12 py-5 text-center">
-                <i class="fa-solid fa-box-open fa-3x text-muted mb-3"></i>
-                <h5>No items currently in this subcategory</h5>
-            </div>
-            {% endfor %}
-        </div>
-
-        {% else %}
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4 class="fw-bold mb-0 border-start border-4 border-warning ps-2">Trending Products</h4>
-        </div>
-        <div class="row g-3 mb-5">
-            {% for item in trending %}
-            <div class="col-6 col-md-4 col-lg-3">
-                <div class="product-card h-100 d-flex flex-column justify-content-between">
-                    <div>
-                        <div class="product-img-box">
-                            <span class="badge-discount-tag">{{ discount_rate }}% OFF</span>
-                            <a href="/product/{{ item.id }}">
-                                <img src="{{ item.image }}" alt="{{ item.name }}" onerror="this.src='https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400'">
-                            </a>
-                        </div>
-                        <div class="p-3">
-                            <span class="badge bg-light text-dark border mb-1 small">{{ item.subcategory }}</span>
-                            <a href="/product/{{ item.id }}" class="text-decoration-none">
-                                <h6 class="fw-bold mb-1 text-dark text-truncate">{{ item.name }}</h6>
-                            </a>
-                            <p class="text-muted small mb-0 text-truncate">{{ item.description }}</p>
-                        </div>
-                    </div>
-                    <div class="p-3 pt-0">
-                        <div class="fs-5 fw-bold text-dark mb-2">₹{{ "%.2f"|format(item.price) }}</div>
-                        <div class="d-grid gap-1">
-                            <button type="button" onclick="silentAddToCart({{ item.id }}, this)" class="btn btn-cart-sm py-1">
-                                <i class="fa-solid fa-cart-plus me-1"></i> Add to Cart
-                            </button>
-                            <a href="/product/{{ item.id }}" class="btn btn-buy-sm py-1">
-                                <i class="fa-solid fa-bolt me-1"></i> Buy Now
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4 class="fw-bold mb-0 border-start border-4 border-warning ps-2">Bestseller Products & New Arrivals</h4>
-        </div>
-        <div class="row g-3 mb-5">
-            {% for item in bestsellers + new_arrivals %}
-            <div class="col-6 col-md-4 col-lg-3">
-                <div class="product-card h-100 d-flex flex-column justify-content-between">
-                    <div>
-                        <div class="product-img-box">
-                            <span class="badge-discount-tag">{{ discount_rate }}% OFF</span>
-                            <a href="/product/{{ item.id }}">
-                                <img src="{{ item.image }}" alt="{{ item.name }}" onerror="this.src='https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400'">
-                            </a>
-                        </div>
-                        <div class="p-3">
-                            <span class="badge bg-secondary mb-1 small">{{ item.tag }}</span>
-                            <a href="/product/{{ item.id }}" class="text-decoration-none">
-                                <h6 class="fw-bold mb-1 text-dark text-truncate">{{ item.name }}</h6>
-                            </a>
-                            <p class="text-muted small mb-0 text-truncate">{{ item.description }}</p>
-                        </div>
-                    </div>
-                    <div class="p-3 pt-0">
-                        <div class="fs-5 fw-bold text-dark mb-2">₹{{ "%.2f"|format(item.price) }}</div>
-                        <div class="d-grid gap-1">
-                            <button type="button" onclick="silentAddToCart({{ item.id }}, this)" class="btn btn-cart-sm py-1">
-                                <i class="fa-solid fa-cart-plus me-1"></i> Add to Cart
-                            </button>
-                            <a href="/product/{{ item.id }}" class="btn btn-buy-sm py-1">
-                                <i class="fa-solid fa-bolt me-1"></i> Buy Now
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-    </div>
-
-    <!-- Store Branches -->
-    <section class="py-5 bg-white border-top" id="branches">
-        <div class="container">
-            <div class="text-center mb-5">
-                <span class="badge bg-warning text-dark px-3 py-2 fw-bold text-uppercase">Visit In Person</span>
-                <h2 class="fw-bold text-dark mt-2">Our Store Branches in Tiruchirappalli</h2>
-                <p class="text-muted">Direct wholesale prices directly at our physical showrooms.</p>
-            </div>
-
-            <div class="row g-4">
-                <div class="col-lg-6">
-                    <div class="branch-card h-100">
-                        <div class="branch-header main-branch d-flex justify-content-between align-items-center">
-                            <div>
-                                <span class="badge bg-warning text-dark fw-bold mb-1">MAIN BRANCH & GODOWN</span>
-                                <h5 class="fw-bold mb-0">Krishna Jawli Store – Palakkarai</h5>
-                            </div>
-                            <i class="fa-solid fa-store fa-2x text-warning"></i>
-                        </div>
-                        <div class="p-4">
-                            <p class="mb-2"><i class="fa-solid fa-location-dot text-danger me-2"></i>39, Parupukkara Street, Palakkarai, Thiruchirapalli – 620001</p>
-                            <p class="mb-2"><i class="fa-regular fa-clock text-primary me-2"></i>9:30 AM – 9:30 PM (All 7 Days)</p>
-                            <p class="mb-3"><i class="fa-solid fa-phone text-success me-2"></i>+91 6380994544</p>
-                            <div class="d-flex gap-2">
-                                <a href="https://maps.google.com/?q=39,+Parupukkara+Street,+Palakkarai,+Thiruchirapalli" target="_blank" class="btn btn-outline-primary btn-sm flex-grow-1">Route Navigation</a>
-                                <a href="tel:6380994544" class="btn btn-outline-dark btn-sm">Call</a>
-                                <a href="https://wa.me/916380994544" target="_blank" class="btn btn-success btn-sm">WhatsApp</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-6">
-                    <div class="branch-card h-100">
-                        <div class="branch-header branch-two d-flex justify-content-between align-items-center">
-                            <div>
-                                <span class="badge bg-light text-dark fw-bold mb-1">BRANCH 2</span>
-                                <h5 class="fw-bold mb-0">Krishna Jawli Store – Singarathopu</h5>
-                            </div>
-                            <i class="fa-solid fa-shop fa-2x text-warning"></i>
-                        </div>
-                        <div class="p-4">
-                            <p class="mb-2"><i class="fa-solid fa-location-dot text-danger me-2"></i>Singarathopu Commercial Main Road, Thiruchirapalli – 620008</p>
-                            <p class="mb-2"><i class="fa-regular fa-clock text-primary me-2"></i>10:00 AM – 9:30 PM (All 7 Days)</p>
-                            <p class="mb-3"><i class="fa-solid fa-phone text-success me-2"></i>+91 6380994544</p>
-                            <div class="d-flex gap-2">
-                                <a href="https://maps.google.com/?q=Singarathopu,+Thiruchirapalli" target="_blank" class="btn btn-outline-primary btn-sm flex-grow-1">Route Navigation</a>
-                                <a href="tel:6380994544" class="btn btn-outline-dark btn-sm">Call</a>
-                                <a href="https://wa.me/916380994544" target="_blank" class="btn btn-success btn-sm">WhatsApp</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </section>
+    {% endif %}
 
-    <footer class="bg-dark text-white py-5">
-        <div class="container text-center">
-            <h5 class="fst-italic text-warning mb-2">“God is in the work he does.”</h5>
-            <p class="text-secondary small mb-3">Wholesale & Retail Handloom &bull; Cotton Sarees &bull; Bedsheets &bull; Lungies &bull; Towels</p>
-            <p class="text-muted small mb-0">&copy; 2026 Krishna Jawli Store. All Rights Reserved.</p>
-        </div>
+    <!-- PRODUCT CATALOG -->
+    <main id="catalog" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+
+        {% if selected_category %}
+            <!-- CATEGORY FILTER VIEW -->
+            <div class="mb-6">
+                <h1 class="text-2xl font-bold text-slate-900">{{ t(selected_category) }}</h1>
+                {% if subcategories %}
+                <div class="flex flex-wrap gap-2 mt-3">
+                    {% for sub in subcategories %}
+                    <a href="/?category={{ selected_category|urlencode }}&subcategory={{ sub|urlencode }}#catalog" 
+                       class="text-xs px-3 py-1 rounded-lg border {% if selected_subcategory == sub %}bg-indigo-600 border-indigo-600 text-white{% else %}border-slate-300 text-slate-600 hover:border-indigo-600{% endif %}">
+                        {{ sub }}
+                    </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+                {% for prod in filtered_products %}
+                    {% include '_product_card.html' ignore missing %}
+                    {% if not product_card_included %}
+                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col">
+                        <img src="{{ prod.image }}" alt="{{ prod.name }}" class="w-full h-48 object-cover">
+                        <div class="p-4 flex flex-col flex-1">
+                            <span class="text-[11px] font-semibold text-indigo-600 uppercase tracking-wider">{{ t(prod.category) }}</span>
+                            <h3 class="font-bold text-slate-900 text-sm mt-1 line-clamp-1">{{ prod.name }}</h3>
+                            <p class="text-xs text-slate-500 mt-1 line-clamp-2">{{ prod.description }}</p>
+                            <div class="mt-auto pt-3 flex items-center justify-between">
+                                <span class="text-base font-bold text-slate-900">₹{{ "%.2f"|format(prod.price) }}</span>
+                                <a href="/product/{{ prod.id }}" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-3 py-1.5 rounded-lg transition">
+                                    {{ t('buy_now') }}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% else %}
+                    <div class="col-span-full py-12 text-center text-slate-500 text-sm">
+                        No products listed in this section yet.
+                    </div>
+                {% endfor %}
+            </div>
+
+        {% else %}
+            <!-- DEFAULT DASHBOARD VIEW -->
+            
+            <!-- SECTION 1: TRENDING -->
+            <div class="mb-10">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-slate-900">{{ t('trending') }}</h2>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+                    {% for prod in trending %}
+                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col">
+                        <img src="{{ prod.image }}" alt="{{ prod.name }}" class="w-full h-48 object-cover">
+                        <div class="p-4 flex flex-col flex-1">
+                            <span class="text-[11px] font-semibold text-indigo-600 uppercase tracking-wider">{{ t(prod.category) }}</span>
+                            <h3 class="font-bold text-slate-900 text-sm mt-1 line-clamp-1">{{ prod.name }}</h3>
+                            <div class="mt-auto pt-3 flex items-center justify-between">
+                                <span class="text-base font-bold text-slate-900">₹{{ "%.2f"|format(prod.price) }}</span>
+                                <a href="/product/{{ prod.id }}" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-3 py-1.5 rounded-lg transition">
+                                    {{ t('buy_now') }}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- SECTION 2: BESTSELLERS -->
+            {% if bestsellers %}
+            <div class="mb-10">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-slate-900">{{ t('bestsellers') }}</h2>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+                    {% for prod in bestsellers %}
+                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col">
+                        <img src="{{ prod.image }}" alt="{{ prod.name }}" class="w-full h-48 object-cover">
+                        <div class="p-4 flex flex-col flex-1">
+                            <span class="text-[11px] font-semibold text-indigo-600 uppercase tracking-wider">{{ t(prod.category) }}</span>
+                            <h3 class="font-bold text-slate-900 text-sm mt-1 line-clamp-1">{{ prod.name }}</h3>
+                            <div class="mt-auto pt-3 flex items-center justify-between">
+                                <span class="text-base font-bold text-slate-900">₹{{ "%.2f"|format(prod.price) }}</span>
+                                <a href="/product/{{ prod.id }}" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-3 py-1.5 rounded-lg transition">
+                                    {{ t('buy_now') }}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+        {% endif %}
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
+        © 2026 {{ t('store_name') }}. All rights reserved. Handcrafted textiles direct from weavers.
     </footer>
 
-    <a href="https://wa.me/916380994544" target="_blank" class="whatsapp-float">
-        <i class="fa-brands fa-whatsapp fa-xl"></i>
-        <span>Chat with Us</span>
-    </a>
-
-    <script>
-        function silentAddToCart(productId, buttonElement) {
-            var formData = new FormData();
-            formData.append('quantity', 1);
-            formData.append('size', 'Standard');
-            formData.append('ajax', '1');
-
-            fetch('/add-to-cart/' + productId, {
-                method: 'POST',
-                body: formData
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    var badge = document.getElementById('navCartBadge');
-                    if (badge) badge.innerText = data.cart_count;
-
-                    var originalHtml = buttonElement.innerHTML;
-                    buttonElement.innerHTML = '<i class="fa-solid fa-check text-success me-1"></i> Added!';
-                    buttonElement.classList.remove('btn-cart-sm');
-                    buttonElement.classList.add('btn-light');
-
-                    setTimeout(() => {
-                        buttonElement.innerHTML = originalHtml;
-                        buttonElement.classList.remove('btn-light');
-                        buttonElement.classList.add('btn-cart-sm');
-                    }, 1200);
-                }
-            })
-            .catch(err => console.error(err));
-        }
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
